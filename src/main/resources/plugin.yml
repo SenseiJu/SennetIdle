@@ -1,0 +1,6 @@
+name: SennetIdle
+main: me.senseiju.sennetidle.SennetIdle
+version: ${version}
+
+author: SenseiJu
+website: https://senseiju.me
