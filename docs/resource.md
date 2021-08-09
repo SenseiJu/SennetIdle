@@ -18,6 +18,5 @@ A `Reagent` will be defined in the `plugins/sennetidle/regents` folder. An examp
             "amount": 3
         }
     ]
-    
 }
 ```

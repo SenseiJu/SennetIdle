@@ -48,7 +48,9 @@ tasks {
         relocate("dev.triumphteam.gui", "me.senseiju.shaded.gui")
         relocate("me.mattstudios.mf", "me.senseiju.shaded.cmd")
 
-        minimize()
+        minimize {
+            exclude(dependency("org.jetbrains.exposed:.*:.*"))
+        }
     }
 
     processResources {

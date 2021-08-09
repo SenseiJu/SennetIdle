@@ -1,24 +1,29 @@
 package me.senseiju.sennetidle
 
 import com.zaxxer.hikari.HikariDataSource
+import me.senseiju.sennetidle.database.PlayerRegentsTable
 import me.senseiju.sentils.service.ServiceProvider
 import me.senseiju.sentils.storage.ConfigFile
 import org.bukkit.plugin.java.JavaPlugin
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.transaction
 
 val serviceProvider = ServiceProvider()
 
 class SennetIdle : JavaPlugin() {
 
     override fun onEnable() {
-
+        establishDatabase()
     }
 
     override fun onDisable() {
         serviceProvider.disableAll()
     }
 
+    /**
+     * Creates connection to database and relevant tables
+     */
     private fun establishDatabase() {
         val databaseConfig = ConfigFile(this, "database.yml", true)
         val dataSource = HikariDataSource()
@@ -32,5 +37,8 @@ class SennetIdle : JavaPlugin() {
 
         Database.connect(dataSource)
 
+        transaction {
+            SchemaUtils.create(PlayerRegentsTable)
+        }
     }
 }
