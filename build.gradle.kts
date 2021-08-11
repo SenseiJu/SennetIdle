@@ -16,19 +16,20 @@ repositories {
     maven("https://jitpack.io")
     maven("https://papermc.io/repo/repository/maven-public/")
     maven("https://repo.mattstudios.me/artifactory/public/")
+    maven("https://repo.panda-lang.org/releases")
 }
 
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:+")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:+")
-    implementation("com.github.SenseiJu:Sentils:8bb802e374")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:+")
+    implementation("com.github.SenseiJu:Sentils:ea6e3d6d03")
     implementation("dev.triumphteam:triumph-gui:+")
     implementation("me.mattstudios.utils:matt-framework:1.4")
     implementation("com.zaxxer:HikariCP:+")
-    implementation("org.jetbrains.exposed:exposed-core:+")
-    implementation("org.jetbrains.exposed:exposed-dao:+")
-    implementation("org.jetbrains.exposed:exposed-jdbc:+")
+    implementation("org.ktorm:ktorm-core:+")
+    implementation("org.ktorm:ktorm-support-mysql:+")
 
     compileOnly("io.papermc.paper:paper-api:+")
 
@@ -49,7 +50,7 @@ tasks {
         relocate("me.mattstudios.mf", "me.senseiju.shaded.cmd")
 
         minimize {
-            exclude(dependency("org.jetbrains.exposed:.*:.*"))
+            exclude(dependency("org.jetbrains.kotlin:kotlin-reflect:.*"))
         }
     }
 

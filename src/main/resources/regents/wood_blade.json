@@ -1,0 +1,24 @@
+{
+    "id": "wood_blade",
+    "material": "WOODEN_SWORD",
+    "displayName": "Wooden Blade",
+    "space": 0.3,
+    "value": 6.5,
+    "craftingTime": 5,
+    "craftingRegents": [
+        {
+            "id": "wood",
+            "amount": 5
+        }
+    ],
+    "upgrades": [
+        {
+            "amountToCraft": 20,
+            "craftingTimeDecrease": 0.15
+        },
+        {
+            "amountToCraft": 100,
+            "craftingTimeDecrease": 0.5
+        }
+    ]
+}

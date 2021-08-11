@@ -1,6 +1,7 @@
 name: SennetIdle
 main: me.senseiju.sennetidle.SennetIdle
 version: ${version}
+api-version: 1.17
 
 author: SenseiJu
 website: https://senseiju.me

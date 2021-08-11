@@ -1,0 +1,24 @@
+{
+    "id": "wood_handle",
+    "material": "STICK",
+    "displayName": "Wooden Handle",
+    "space": 0.1,
+    "value": 3,
+    "craftingTime": 3,
+    "craftingRegents": [
+        {
+            "id": "wood",
+            "amount": 2
+        }
+    ],
+    "upgrades": [
+        {
+            "amountToCraft": 20,
+            "craftingTimeDecrease": 0.15
+        },
+        {
+            "amountToCraft": 100,
+            "craftingTimeDecrease": 0.5
+        }
+    ]
+}

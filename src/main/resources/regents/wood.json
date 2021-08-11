@@ -1,0 +1,9 @@
+{
+    "id": "wood",
+    "material": "OAK_PLANKS",
+    "displayName": "Wood",
+    "space": 0.1,
+    "value": 1.0,
+    "craftingRegents": [],
+    "upgrades": []
+}

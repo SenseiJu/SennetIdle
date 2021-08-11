@@ -1,0 +1,28 @@
+{
+    "id": "wood_sword",
+    "material": "WOODEN_SWORD",
+    "displayName": "Wooden Sword",
+    "space": 0.2,
+    "value": 13,
+    "craftingTime": 10,
+    "craftingRegents": [
+        {
+            "id": "wood_handle",
+            "amount": 1
+        },
+        {
+            "id": "wood_blade",
+            "amount": 1
+        }
+    ],
+    "upgrades": [
+        {
+            "amountToCraft": 10,
+            "craftingTimeDecrease": 0.15
+        },
+        {
+            "amountToCraft": 100,
+            "craftingTimeDecrease": 0.4
+        }
+    ]
+}

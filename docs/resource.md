@@ -8,6 +8,7 @@ A `Reagent` will be defined in the `plugins/sennetidle/regents` folder. An examp
     "displayName": "Stone",
     "space": 0.1,
     "value": 1.5,
+    "craftingTime": 22.5,
     "craftingResources": [
         {
             "id": "otherRegentId",
@@ -16,6 +17,16 @@ A `Reagent` will be defined in the `plugins/sennetidle/regents` folder. An examp
         {
             "id": "otherRegentId2",
             "amount": 3
+        }
+    ],
+    "upgrades": [
+        {
+            "amountToCraft": 10,
+            "craftingTimeDecrease": 0.25
+        },
+        {
+            "amountToCraft": 50,
+            "craftingTimeDecrease": 0.5
         }
     ]
 }
