@@ -1,4 +1,4 @@
-package me.senseiju.sennetidle.regents
+package me.senseiju.sennetidle.reagents
 
 import dev.triumphteam.gui.components.ScrollType
 import dev.triumphteam.gui.guis.Gui
@@ -14,14 +14,14 @@ import net.kyori.adventure.text.format.NamedTextColor.RED
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.entity.Player
 
-private val titleComponent = text("Regents", RED, TextDecoration.BOLD)
-private val regentService = serviceProvider.get<RegentService>()
+private val titleComponent = text("Reagents", RED, TextDecoration.BOLD)
+private val reagentService = serviceProvider.get<ReagentService>()
 
-fun Player.openRegentsGui(user: User) {
-    createRegentsGui(user).open(this)
+fun Player.openReagentsGui(user: User) {
+    createReagentsGui(user).open(this)
 }
 
-private fun createRegentsGui(user: User): ScrollingGui {
+private fun createReagentsGui(user: User): ScrollingGui {
     val gui = Gui.scrolling(ScrollType.HORIZONTAL)
         .title(titleComponent)
         .rows(3)
@@ -36,13 +36,13 @@ private fun createRegentsGui(user: User): ScrollingGui {
 
     gui.disableAllInteractions()
 
-    populateRegentsIntoGui(gui, user)
+    populateReagentsIntoGui(gui, user)
 
     return gui
 }
 
-private fun populateRegentsIntoGui(gui: ScrollingGui, user: User) {
-    regentService.regents.values.reversed().forEach {
-        gui.addItem(GuiItem(it.displayItem(user.regents[it.id]!!)))
+private fun populateReagentsIntoGui(gui: ScrollingGui, user: User) {
+    reagentService.reagents.values.reversed().forEach {
+        gui.addItem(GuiItem(it.displayItem(user.reagents[it.id]!!)))
     }
 }

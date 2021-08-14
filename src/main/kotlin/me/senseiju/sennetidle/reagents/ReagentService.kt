@@ -1,4 +1,4 @@
-package me.senseiju.sennetidle.regents
+package me.senseiju.sennetidle.reagents
 
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -7,29 +7,29 @@ import me.senseiju.sentils.service.Service
 import java.io.File
 import java.util.jar.JarFile
 
-class RegentService(private val plugin: SennetIdle) : Service() {
+class ReagentService(private val plugin: SennetIdle) : Service() {
     private val logger = plugin.slF4JLogger
 
-    var regents = hashMapOf<String, Regent>()
+    var reagents = hashMapOf<String, Reagent>()
         private set
 
     init {
-        copyRegentsFromJar()
-        loadRegents()
+        copyReagentsFromJar()
+        loadReagents()
     }
 
     override fun onReload() {
-        loadRegents()
+        loadReagents()
     }
 
-    private fun copyRegentsFromJar() {
+    private fun copyReagentsFromJar() {
         val jar = JarFile(plugin.javaClass.protectionDomain.codeSource.location.toURI().path)
         val entries = jar.entries()
 
         while (entries.hasMoreElements()) {
             val entry = entries.nextElement()
 
-            if (!entry.name.startsWith("regents/")) {
+            if (!entry.name.startsWith("reagents/")) {
                 continue
             }
 
@@ -39,31 +39,31 @@ class RegentService(private val plugin: SennetIdle) : Service() {
         }
     }
 
-    private fun loadRegents() {
-        val newRegents = HashMap<String, Regent>()
+    private fun loadReagents() {
+        val newReagents = HashMap<String, Reagent>()
 
-        File(plugin.dataFolder, "regents/")
+        File(plugin.dataFolder, "reagents/")
             .walk()
             .filter { it.isFile }
-            .forEach { regentFile ->
-                val regentJson = regentFile.readText()
+            .forEach { reagentFile ->
+                val reagentJson = reagentFile.readText()
 
-                val regent = try {
-                    Json.decodeFromString<Regent>(regentJson)
+                val reagent = try {
+                    Json.decodeFromString<Reagent>(reagentJson)
                 } catch (ex: Exception) {
-                    logger.error("Regent failed to decode. File: ${regentFile.name}")
+                    logger.error("Reagent failed to decode. File: ${reagentFile.name}")
                     ex.printStackTrace()
                     return@forEach
                 }
 
-                if (newRegents.containsKey(regent.id)) {
-                    logger.error("Regent failed to load as it already exists. RegentId: ${regent.id}, File: ${regentFile.name}")
+                if (newReagents.containsKey(reagent.id)) {
+                    logger.error("Reagent failed to load as it already exists. ReagentId: ${reagent.id}, File: ${reagentFile.name}")
                     return@forEach
                 }
 
-                newRegents[regent.id] = regent
+                newReagents[reagent.id] = reagent
             }
 
-        regents = newRegents
+        reagents = newReagents
     }
 }

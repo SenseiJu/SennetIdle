@@ -1,76 +1,59 @@
 package me.senseiju.sennetidle.users
 
 import me.senseiju.sennetidle.SennetIdle
-import me.senseiju.sennetidle.database
-import me.senseiju.sennetidle.database.UserRegentsTable
-import me.senseiju.sennetidle.database.UserRegentsTable.regentAmount
-import me.senseiju.sennetidle.database.UserRegentsTable.regentId
-import me.senseiju.sennetidle.database.UserRegentsTable.regentLevel
-import me.senseiju.sennetidle.database.UserRegentsTable.userUUID
-import me.senseiju.sennetidle.regents.RegentService
+import me.senseiju.sennetidle.idlemobs.IdleMobService
+import me.senseiju.sennetidle.reagents.ReagentService
 import me.senseiju.sennetidle.serviceProvider
 import me.senseiju.sennetidle.utils.ioScope
 import me.senseiju.sentils.registerEvents
 import me.senseiju.sentils.service.Service
-import org.ktorm.dsl.*
-import org.ktorm.support.mysql.insertOrUpdate
 import java.util.*
 
 class UserService(plugin: SennetIdle) : Service() {
-    private val regentService = serviceProvider.get<RegentService>()
+    private val regentService = serviceProvider.get<ReagentService>()
+
+    private val userSaveHandler = UserSaveHandler()
+    private val userLoadHandler = UserLoadHandler(plugin)
 
     val users = hashMapOf<UUID, User>()
 
+    //region Service
+
     init {
-        plugin.registerEvents(UserListener(this))
+        plugin.registerEvents(UserConnectListener(this))
+
+        UserSaveTask(plugin, this)
     }
 
     override fun onDisable() {
         saveUsers(false)
     }
 
-    fun saveUsers(async: Boolean = true) {
-        users.values.forEach { user ->
-            if (async) {
-                ioScope { saveUserRegents(user) }
-            } else {
-                saveUserRegents(user)
-            }
+    //endregion
+
+    fun getUser(uuid: UUID) = users.getOrPut(uuid) { createEmptyUser(uuid) }
+
+    fun saveUser(user: User, async: Boolean) {
+        if (async) {
+            ioScope { userSaveHandler.saveUser(user) }
+        } else {
+            userSaveHandler.saveUser(user)
         }
     }
 
-    private fun saveUserRegents(user: User) {
-        user.regents.values.forEach { userRegent ->
-            database.insertOrUpdate(UserRegentsTable) {
-                set(userUUID, user.uuid)
-                set(regentId, userRegent.id)
-                set(regentAmount, userRegent.amount)
-                set(regentLevel, userRegent.level)
-                onDuplicateKey {
-                    set(regentAmount, userRegent.amount)
-                    set(regentLevel, userRegent.level)
-                }
-            }
-        }
+    fun saveUsers(async: Boolean = true) {
+        users.values.forEach { saveUser(it, async) }
     }
 
     fun createUser(uuid: UUID) {
-        val user = User(uuid, emptyUserRegentsMap())
+        val user = createEmptyUser(uuid)
 
-        database.from(UserRegentsTable)
-            .select()
-            .where(userUUID eq uuid)
-            .forEach {
-                user.regents[it[regentId]!!] =
-                    UserRegent(
-                        it[regentId]!!,
-                        it[regentLevel]!!,
-                        it[regentAmount]!!
-                    )
-            }
+        userLoadHandler.loadUser(user)
 
         users[uuid] = user
     }
 
-    private fun emptyUserRegentsMap() = regentService.regents.values.associateTo(hashMapOf()) { it.id to UserRegent(it.id) }
+    private fun createEmptyUser(uuid: UUID) = User(uuid, emptyUserRegentsMap(), 0)
+
+    private fun emptyUserRegentsMap() = regentService.reagents.values.associateTo(hashMapOf()) { it.id to UserReagent(it.id) }
 }

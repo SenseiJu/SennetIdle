@@ -17,6 +17,7 @@ repositories {
     maven("https://papermc.io/repo/repository/maven-public/")
     maven("https://repo.mattstudios.me/artifactory/public/")
     maven("https://repo.panda-lang.org/releases")
+    maven("https://repo.dmulloy2.net/repository/public/")
 }
 
 dependencies {
@@ -24,7 +25,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:+")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:+")
     implementation("org.jetbrains.kotlin:kotlin-reflect:+")
-    implementation("com.github.SenseiJu:Sentils:ea6e3d6d03")
+    implementation("com.github.SenseiJu:Sentils:3715b60a07")
     implementation("dev.triumphteam:triumph-gui:+")
     implementation("me.mattstudios.utils:matt-framework:1.4")
     implementation("com.zaxxer:HikariCP:+")
@@ -32,6 +33,7 @@ dependencies {
     implementation("org.ktorm:ktorm-support-mysql:+")
 
     compileOnly("io.papermc.paper:paper-api:+")
+    compileOnly("com.comphenix.protocol:ProtocolLib:+")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:+")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:+")

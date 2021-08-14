@@ -8,7 +8,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
 
-class UserListener(private val userService: UserService) : Listener {
+class UserConnectListener(private val userService: UserService) : Listener {
     private val users = userService.users
 
     @EventHandler

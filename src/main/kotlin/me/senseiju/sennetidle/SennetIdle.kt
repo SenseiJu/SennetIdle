@@ -3,12 +3,15 @@ package me.senseiju.sennetidle
 import com.zaxxer.hikari.HikariDataSource
 import me.mattstudios.mf.base.CommandManager
 import me.senseiju.sennetidle.commands.SennetIdleCommand
-import me.senseiju.sennetidle.regents.RegentService
+import me.senseiju.sennetidle.idlemobs.IdleMobService
+import me.senseiju.sennetidle.inventory.InventoryService
+import me.senseiju.sennetidle.reagents.ReagentService
 import me.senseiju.sennetidle.users.UserService
 import me.senseiju.sentils.service.ServiceProvider
 import me.senseiju.sentils.storage.ConfigFile
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.Style
+import org.bukkit.GameRule
 import org.bukkit.plugin.java.JavaPlugin
 import org.ktorm.database.Database
 import org.ktorm.support.mysql.MySqlDialect
@@ -25,6 +28,14 @@ class SennetIdle : JavaPlugin() {
         enableServices()
         registerCommands()
         establishDatabase()
+
+        server.worlds.forEach {
+            it.setGameRule(GameRule.MAX_ENTITY_CRAMMING, 0)
+            it.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false)
+            it.setGameRule(GameRule.DO_WEATHER_CYCLE, false)
+            it.setGameRule(GameRule.DO_MOB_SPAWNING, false)
+            it.setGameRule(GameRule.DO_MOB_LOOT, false)
+        }
     }
 
     override fun onDisable() {
@@ -36,8 +47,10 @@ class SennetIdle : JavaPlugin() {
     }
 
     private fun enableServices() {
-        serviceProvider.add(RegentService(this))
+        serviceProvider.add(IdleMobService(this))
+        serviceProvider.add(ReagentService(this))
         serviceProvider.add(UserService(this))
+        serviceProvider.add(InventoryService(this))
     }
 
     private fun registerCommands() {

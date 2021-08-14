@@ -8,11 +8,10 @@ import me.mattstudios.mf.base.CommandBase
 import me.senseiju.sennetidle.PERMISSION_DEV
 import me.senseiju.sennetidle.PERMISSION_RELOAD
 import me.senseiju.sennetidle.SennetIdle
-import me.senseiju.sennetidle.regents.RegentService
-import me.senseiju.sennetidle.regents.openRegentsGui
+import me.senseiju.sennetidle.reagents.ReagentService
+import me.senseiju.sennetidle.reagents.openReagentsGui
 import me.senseiju.sennetidle.serviceProvider
 import me.senseiju.sennetidle.users.UserService
-import org.bukkit.Material
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
@@ -21,7 +20,7 @@ class SennetIdleCommand(plugin: SennetIdle) : CommandBase() {
     private val logger = plugin.slF4JLogger
 
     private val userService = serviceProvider.get<UserService>()
-    private val regentService = serviceProvider.get<RegentService>()
+    private val regentService = serviceProvider.get<ReagentService>()
 
     @SubCommand("Reload")
     @Permission(PERMISSION_RELOAD)
@@ -32,19 +31,19 @@ class SennetIdleCommand(plugin: SennetIdle) : CommandBase() {
     @SubCommand("OpenRegentsGui")
     @Permission(PERMISSION_RELOAD)
     fun openRegentsGui(sender: Player) {
-        val user = userService.users[sender.uniqueId] ?: return
+        val user = userService.getUser(sender.uniqueId)
 
-        sender.openRegentsGui(user)
+        sender.openReagentsGui(user)
     }
 
     @SubCommand("AddRegent")
     @Permission(PERMISSION_DEV)
     fun addRegent(sender: Player, target: Player, regentId: String, @Optional amount: Int? = 1) {
         amount ?: return
-        if (!regentService.regents.containsKey(regentId)) return
+        if (!regentService.reagents.containsKey(regentId)) return
 
-        val user = userService.users[target.uniqueId] ?: return
-        user.regents[regentId]?.let { it.amount += amount }
+        val user = userService.getUser(target.uniqueId)
+        user.reagents[regentId]?.let { it.amount += amount }
 
         logger.info("Added $amount $regentId to ${target.name}")
     }

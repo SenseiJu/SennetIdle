@@ -5,7 +5,7 @@
     "space": 0.2,
     "value": 13,
     "craftingTime": 10,
-    "craftingRegents": [
+    "craftingReagents": [
         {
             "id": "wood_handle",
             "amount": 1
