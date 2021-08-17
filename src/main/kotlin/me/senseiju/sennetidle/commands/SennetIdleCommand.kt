@@ -1,5 +1,6 @@
 package me.senseiju.sennetidle.commands
 
+import kotlinx.coroutines.DEBUG_PROPERTY_VALUE_AUTO
 import me.mattstudios.mf.annotations.Command
 import me.mattstudios.mf.annotations.Optional
 import me.mattstudios.mf.annotations.Permission
@@ -8,6 +9,7 @@ import me.mattstudios.mf.base.CommandBase
 import me.senseiju.sennetidle.PERMISSION_DEV
 import me.senseiju.sennetidle.PERMISSION_RELOAD
 import me.senseiju.sennetidle.SennetIdle
+import me.senseiju.sennetidle.inventory.InventoryService
 import me.senseiju.sennetidle.reagents.ReagentService
 import me.senseiju.sennetidle.reagents.openReagentsGui
 import me.senseiju.sennetidle.serviceProvider
@@ -21,6 +23,7 @@ class SennetIdleCommand(plugin: SennetIdle) : CommandBase() {
 
     private val userService = serviceProvider.get<UserService>()
     private val regentService = serviceProvider.get<ReagentService>()
+    private val inventoryService = serviceProvider.get<InventoryService>()
 
     @SubCommand("Reload")
     @Permission(PERMISSION_RELOAD)
@@ -40,6 +43,7 @@ class SennetIdleCommand(plugin: SennetIdle) : CommandBase() {
     @Permission(PERMISSION_DEV)
     fun addRegent(sender: Player, target: Player, regentId: String, @Optional amount: Int? = 1) {
         amount ?: return
+
         if (!regentService.reagents.containsKey(regentId)) return
 
         val user = userService.getUser(target.uniqueId)
@@ -48,9 +52,28 @@ class SennetIdleCommand(plugin: SennetIdle) : CommandBase() {
         logger.info("Added $amount $regentId to ${target.name}")
     }
 
+    @SubCommand("SetTotalRegent")
+    @Permission(PERMISSION_DEV)
+    fun setTotalRegent(sender: Player, target: Player, regentId: String, @Optional amount: Long? = 1) {
+        amount ?: return
+
+        if (!regentService.reagents.containsKey(regentId)) return
+
+        val user = userService.getUser(target.uniqueId)
+        user.reagents[regentId]?.let { it.totalAmountCrafted = amount }
+
+        logger.info("Set $amount $regentId to total reagents for ${target.name}")
+    }
+
     @SubCommand("ForceSave")
     @Permission(PERMISSION_DEV)
     fun forceSave(sender: Player) {
         userService.saveUsers()
+    }
+
+    @SubCommand("bypass")
+    @Permission(PERMISSION_DEV)
+    fun bypass(sender: Player) {
+        inventoryService.inventoryLockBypass.add(sender.uniqueId)
     }
 }

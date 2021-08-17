@@ -3,19 +3,19 @@ package me.senseiju.sennetidle.generator
 import me.senseiju.sennetidle.SennetIdle
 import me.senseiju.sennetidle.reagents.Reagent
 import me.senseiju.sennetidle.users.User
+import org.bukkit.Location
 import org.bukkit.scheduler.BukkitRunnable
+import kotlin.properties.Delegates
 
 class CraftingGenerator(
-    private val id: Int,
-) : BukkitRunnable() {
+    private val plugin: SennetIdle,
+    private val id: String,
+    val location: Location
+) {
     val activeUserCrafts = hashMapOf<User, ReagentCrafting>()
 
-    fun startCraftingReagent() {
-
-    }
-
-    override fun run() {
-        // TODO: Check if the currently selected reagent can be crafted. If so, start crafting
+    fun startReagentCrafting(user: User, reagent: Reagent) {
+        activeUserCrafts[user] = ReagentCrafting(plugin, this, user, reagent)
     }
 }
 
@@ -23,28 +23,37 @@ class ReagentCrafting(
     plugin: SennetIdle,
     private val generator: CraftingGenerator,
     private val user: User,
-    private val reagent: Reagent
+    val reagent: Reagent
 ) : BukkitRunnable() {
-    private val userReagent = user.reagents[reagent.id]!!
-    private var timeToCraftInTicks = reagent.calculateCraftingTime(userReagent)
+    val userReagent = user.reagents[reagent.id]!!
+    private var timeRemainingToCraftInTicks by Delegates.notNull<Float>()
     private var craftingPaused = true
 
     init {
+        resetTime()
+
         runTaskTimerAsynchronously(plugin, 0L, 1L)
     }
 
+    fun getTimeRemaining() = timeRemainingToCraftInTicks / 20
+
     override fun run() {
+        if (generator.activeUserCrafts[user] != this) {
+            cancel()
+            return
+        }
+
         if (craftingPaused) {
             if (user.hasCraftingReagents(reagent)) {
-                craftingPaused = false
+                resetTime()
 
-                resetTimeToCraft()
+                craftingPaused = false
             } else {
                 return
             }
         }
 
-        if (timeToCraftInTicks <= 0) {
+        if (timeRemainingToCraftInTicks <= 0) {
             if (user.hasCraftingReagents(reagent)) {
                 reagent.craftingReagents.forEach {
                     user.removeReagent(it.id, it.amount)
@@ -58,15 +67,10 @@ class ReagentCrafting(
             return
         }
 
-        if (generator.activeUserCrafts[user] != this) {
-            cancel()
-            return
-        }
-
-        timeToCraftInTicks--
+        timeRemainingToCraftInTicks--
     }
 
-    private fun resetTimeToCraft() {
-        timeToCraftInTicks = reagent.calculateCraftingTime(userReagent)
+    private fun resetTime() {
+        timeRemainingToCraftInTicks = reagent.calculateCraftingTimeInTicks(userReagent)
     }
 }

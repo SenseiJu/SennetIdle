@@ -2,6 +2,8 @@ name: SennetIdle
 main: me.senseiju.sennetidle.SennetIdle
 version: ${version}
 api-version: 1.17
+depend:
+  - ProtocolLib
 
 author: SenseiJu
 website: https://senseiju.me

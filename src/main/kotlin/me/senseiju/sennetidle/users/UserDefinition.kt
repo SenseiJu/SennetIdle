@@ -13,7 +13,10 @@ class User(
     var passiveDPS: Double = 10.0
 
     fun addReagent(reagentId: String, amount: Long) {
-        reagents[reagentId]?.let { it.amount += amount }
+        reagents[reagentId]?.let {
+            it.amount += amount
+            it.totalAmountCrafted += amount
+        }
     }
 
     fun removeReagent(reagentId: String, amount: Long) {

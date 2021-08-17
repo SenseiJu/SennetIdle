@@ -8,11 +8,11 @@ import org.ktorm.support.mysql.insertOrUpdate
 class UserSaveHandler {
 
     fun saveUser(user: User) {
-        saveUserRegents(user)
+        saveUserReagents(user)
         saveUserIdleMob(user)
     }
 
-    private fun saveUserRegents(user: User) {
+    private fun saveUserReagents(user: User) {
         user.reagents.values.forEach { userRegent ->
             database.insertOrUpdate(UserReagentsTable) {
                 set(UserReagentsTable.userUUID, user.uuid.toString())

@@ -18,6 +18,7 @@ repositories {
     maven("https://repo.mattstudios.me/artifactory/public/")
     maven("https://repo.panda-lang.org/releases")
     maven("https://repo.dmulloy2.net/repository/public/")
+    maven("https://repo.codemc.io/repository/maven-public/")
 }
 
 dependencies {
@@ -34,6 +35,7 @@ dependencies {
 
     compileOnly("io.papermc.paper:paper-api:+")
     compileOnly("com.comphenix.protocol:ProtocolLib:+")
+    compileOnly("com.gmail.filoghost.holographicdisplays:holographicdisplays-api:+")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:+")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:+")

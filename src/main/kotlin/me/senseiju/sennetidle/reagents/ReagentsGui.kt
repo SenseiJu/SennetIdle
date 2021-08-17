@@ -18,11 +18,8 @@ private val titleComponent = text("Reagents", RED, TextDecoration.BOLD)
 private val reagentService = serviceProvider.get<ReagentService>()
 
 fun Player.openReagentsGui(user: User) {
-    createReagentsGui(user).open(this)
-}
-
-private fun createReagentsGui(user: User): ScrollingGui {
     val gui = Gui.scrolling(ScrollType.HORIZONTAL)
+        .disableAllInteractions()
         .title(titleComponent)
         .rows(3)
         .pageSize(21)
@@ -34,15 +31,9 @@ private fun createReagentsGui(user: User): ScrollingGui {
     gui.setPreviousItem(2, 1)
     gui.setNextItem(2, 9)
 
-    gui.disableAllInteractions()
-
-    populateReagentsIntoGui(gui, user)
-
-    return gui
-}
-
-private fun populateReagentsIntoGui(gui: ScrollingGui, user: User) {
     reagentService.reagents.values.reversed().forEach {
         gui.addItem(GuiItem(it.displayItem(user.reagents[it.id]!!)))
     }
+
+    gui.open(this)
 }

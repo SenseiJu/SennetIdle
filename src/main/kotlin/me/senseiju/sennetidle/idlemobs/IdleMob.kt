@@ -120,7 +120,7 @@ class IdleMob(
     @EventHandler
     private fun onEntityDeath(e: EntityDeathEvent) {
         if (e.entity.uniqueId == activeEntity.uniqueId) {
-            //user.currentWave += 1
+            user.currentWave += 1
 
             newRunnable { respawnNextMob() }.runTaskLater(plugin, 20)
         }

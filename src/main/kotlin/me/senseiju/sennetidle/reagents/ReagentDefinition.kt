@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import me.senseiju.sennetidle.serviceProvider
 import me.senseiju.sennetidle.users.UserReagent
 import me.senseiju.sentils.serializers.MaterialSerializer
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.newline
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor.*
@@ -29,17 +30,17 @@ data class Reagent(
             .name(text(displayName, YELLOW))
             .lore(
                 newline(),
-                text("Level: ", AQUA).append(text("${userReagent.totalAmountCrafted}", GRAY)),
                 text("Amount: ", AQUA).append(text("${userReagent.amount}", GRAY)),
+                text("Total amount crafted: ", AQUA).append(text("${userReagent.totalAmountCrafted}", GRAY)),
                 text("Crafting Reagents: ", AQUA).append(text("[${craftingReagents.joinToString(", ") { "x${it.amount} ${it.getDisplayName()}" }}]", GRAY))
             )
             .build()
     }
 
-    fun calculateCraftingTime(userReagent: UserReagent): Float {
-        val timeToDecrease = 1 - (upgrades.firstOrNull { it.amountToCraft >= userReagent.totalAmountCrafted }?.craftingTimeDecrease ?: 0F)
+    fun calculateCraftingTimeInTicks(userReagent: UserReagent): Float {
+        val timeToDecrease = 1 - (upgrades.lastOrNull { userReagent.totalAmountCrafted >= it.amountToCraft }?.craftingTimeDecrease ?: 0F)
 
-        return craftingTime * timeToDecrease
+        return craftingTime * 20 * timeToDecrease
     }
 }
 

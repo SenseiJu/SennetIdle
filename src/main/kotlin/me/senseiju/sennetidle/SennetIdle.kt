@@ -3,6 +3,7 @@ package me.senseiju.sennetidle
 import com.zaxxer.hikari.HikariDataSource
 import me.mattstudios.mf.base.CommandManager
 import me.senseiju.sennetidle.commands.SennetIdleCommand
+import me.senseiju.sennetidle.generator.GeneratorService
 import me.senseiju.sennetidle.idlemobs.IdleMobService
 import me.senseiju.sennetidle.inventory.InventoryService
 import me.senseiju.sennetidle.reagents.ReagentService
@@ -22,9 +23,11 @@ lateinit var database: Database
     private set
 
 class SennetIdle : JavaPlugin() {
-    private lateinit var commandManager: CommandManager
+    lateinit var commandManager: CommandManager
 
     override fun onEnable() {
+        commandManager = CommandManager(this)
+
         enableServices()
         registerCommands()
         establishDatabase()
@@ -50,12 +53,11 @@ class SennetIdle : JavaPlugin() {
         serviceProvider.add(IdleMobService(this))
         serviceProvider.add(ReagentService(this))
         serviceProvider.add(UserService(this))
+        serviceProvider.add(GeneratorService(this))
         serviceProvider.add(InventoryService(this))
     }
 
     private fun registerCommands() {
-        commandManager = CommandManager(this)
-
         commandManager.register(
             SennetIdleCommand(this)
         )
