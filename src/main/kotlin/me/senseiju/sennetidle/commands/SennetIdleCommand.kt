@@ -1,6 +1,5 @@
 package me.senseiju.sennetidle.commands
 
-import kotlinx.coroutines.DEBUG_PROPERTY_VALUE_AUTO
 import me.mattstudios.mf.annotations.Command
 import me.mattstudios.mf.annotations.Optional
 import me.mattstudios.mf.annotations.Permission
@@ -17,13 +16,13 @@ import me.senseiju.sennetidle.users.UserService
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
+private val userService = serviceProvider.get<UserService>()
+private val regentService = serviceProvider.get<ReagentService>()
+private val inventoryService = serviceProvider.get<InventoryService>()
+
 @Command("SennetIdle")
 class SennetIdleCommand(plugin: SennetIdle) : CommandBase() {
     private val logger = plugin.slF4JLogger
-
-    private val userService = serviceProvider.get<UserService>()
-    private val regentService = serviceProvider.get<ReagentService>()
-    private val inventoryService = serviceProvider.get<InventoryService>()
 
     @SubCommand("Reload")
     @Permission(PERMISSION_RELOAD)

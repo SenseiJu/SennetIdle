@@ -1,27 +1,33 @@
 package me.senseiju.sennetidle.users
 
 import me.senseiju.sennetidle.database
+import me.senseiju.sennetidle.database.UserActiveGeneratorsTable
 import me.senseiju.sennetidle.database.UserIdleMobTable
 import me.senseiju.sennetidle.database.UserReagentsTable
+import me.senseiju.sennetidle.generator.GeneratorService
+import me.senseiju.sennetidle.serviceProvider
 import org.ktorm.support.mysql.insertOrUpdate
+
+private val generatorService = serviceProvider.get<GeneratorService>()
 
 class UserSaveHandler {
 
     fun saveUser(user: User) {
         saveUserReagents(user)
         saveUserIdleMob(user)
+        saveUserActiveGenerators(user)
     }
 
     private fun saveUserReagents(user: User) {
         user.reagents.values.forEach { userRegent ->
             database.insertOrUpdate(UserReagentsTable) {
-                set(UserReagentsTable.userUUID, user.uuid.toString())
-                set(UserReagentsTable.reagentId, userRegent.id)
-                set(UserReagentsTable.reagentAmount, userRegent.amount)
-                set(UserReagentsTable.reagentTotalAmountCrafted, userRegent.totalAmountCrafted)
+                set(it.userUUID, user.uuid.toString())
+                set(it.reagentId, userRegent.id)
+                set(it.reagentAmount, userRegent.amount)
+                set(it.reagentTotalAmountCrafted, userRegent.totalAmountCrafted)
                 onDuplicateKey {
-                    set(UserReagentsTable.reagentAmount, userRegent.amount)
-                    set(UserReagentsTable.reagentTotalAmountCrafted, userRegent.totalAmountCrafted)
+                    set(it.reagentAmount, userRegent.amount)
+                    set(it.reagentTotalAmountCrafted, userRegent.totalAmountCrafted)
                 }
             }
         }
@@ -29,10 +35,25 @@ class UserSaveHandler {
 
     private fun saveUserIdleMob(user: User) {
         database.insertOrUpdate(UserIdleMobTable) {
-            set(UserIdleMobTable.userUUID, user.uuid.toString())
-            set(UserIdleMobTable.currentWave, user.currentWave)
+            set(it.userUUID, user.uuid.toString())
+            set(it.currentWave, user.currentWave)
             onDuplicateKey {
-                set(UserIdleMobTable.currentWave, user.currentWave)
+                set(it.currentWave, user.currentWave)
+            }
+        }
+    }
+
+    private fun saveUserActiveGenerators(user: User) {
+        generatorService.generators.map {
+            it.key to it.value.activeUserCrafts[user]?.reagent?.id
+        }.forEach { (generatorId, reagentId) ->
+            database.insertOrUpdate(UserActiveGeneratorsTable) {
+                set(it.userUUID, user.uuid.toString())
+                set(it.generatorId, generatorId)
+                set(it.reagentId, reagentId)
+                onDuplicateKey {
+                    set(it.reagentId, reagentId)
+                }
             }
         }
     }

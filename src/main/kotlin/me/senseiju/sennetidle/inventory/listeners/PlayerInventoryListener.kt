@@ -22,8 +22,9 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.PlayerInventory
 
+private val userService = serviceProvider.get<UserService>()
+
 class PlayerInventoryListener(private val inventoryService: InventoryService) : Listener {
-    private val userService = serviceProvider.get<UserService>()
 
     @EventHandler
     private fun onPlayerJoin(e: PlayerJoinEvent) {

@@ -1,6 +1,8 @@
 package me.senseiju.sennetidle.database
 
-import org.ktorm.schema.*
+import org.ktorm.schema.Table
+import org.ktorm.schema.long
+import org.ktorm.schema.varchar
 
 object UserReagentsTable : Table<Nothing>("user_reagents") {
     val userUUID = varchar("user_uuid").primaryKey()

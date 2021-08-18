@@ -70,7 +70,7 @@ class IdleMob(
             activeEntity.remove()
         }
 
-        val health = TEMP_BASE_HEALTH * (1.15.pow(user.currentWave))
+        val health = TEMP_BASE_HEALTH //* (1.15.pow(user.currentWave))
         val entity = spawnLocation.world.spawnEntity(spawnLocation, ENTITY_POOL.random()) as LivingEntity
         entity.setAI(false)
         entity.registerAttribute(Attribute.GENERIC_MAX_HEALTH)

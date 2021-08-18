@@ -7,10 +7,11 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 
+private val userService = serviceProvider.get<UserService>()
+
 class GeneratorListener(
     private val generatorService: GeneratorService
 ) : Listener {
-    private val userService = serviceProvider.get<UserService>()
 
     @EventHandler
     private fun onGeneratorRightClick(e: PlayerInteractEvent) {

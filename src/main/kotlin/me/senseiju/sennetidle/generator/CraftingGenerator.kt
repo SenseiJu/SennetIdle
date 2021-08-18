@@ -1,8 +1,12 @@
 package me.senseiju.sennetidle.generator
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import me.senseiju.sennetidle.SennetIdle
 import me.senseiju.sennetidle.reagents.Reagent
 import me.senseiju.sennetidle.users.User
+import me.senseiju.sentils.serializers.LocationSerializer
 import org.bukkit.Location
 import org.bukkit.scheduler.BukkitRunnable
 import kotlin.properties.Delegates
@@ -12,14 +16,22 @@ class CraftingGenerator(
     private val id: String,
     val location: Location
 ) {
-    val activeUserCrafts = hashMapOf<User, ReagentCrafting>()
+    val activeUserCrafts = hashMapOf<User, CraftingReagent>()
 
     fun startReagentCrafting(user: User, reagent: Reagent) {
-        activeUserCrafts[user] = ReagentCrafting(plugin, this, user, reagent)
+        activeUserCrafts[user] = CraftingReagent(plugin, this, user, reagent)
     }
+
+    fun toJson() = Json.encodeToString(SerializableCraftingGenerator(id, location))
 }
 
-class ReagentCrafting(
+@Serializable
+data class SerializableCraftingGenerator(
+    val id: String,
+    @Serializable(LocationSerializer::class) val location: Location
+)
+
+class CraftingReagent(
     plugin: SennetIdle,
     private val generator: CraftingGenerator,
     private val user: User,
