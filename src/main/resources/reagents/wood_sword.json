@@ -2,9 +2,8 @@
     "id": "wood_sword",
     "material": "WOODEN_SWORD",
     "displayName": "Wooden Sword",
-    "space": 0.2,
-    "value": 13,
     "craftingTime": 10,
+    "damagePerSecond": 1,
     "craftingReagents": [
         {
             "id": "wood_handle",

@@ -5,17 +5,23 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.senseiju.sennetidle.SennetIdle
 import me.senseiju.sennetidle.generator.commands.GeneratorCommand
+import me.senseiju.sennetidle.generator.holograms.HologramHandler
+import me.senseiju.sennetidle.serviceProvider
+import me.senseiju.sennetidle.users.UserService
 import me.senseiju.sentils.registerEvents
 import me.senseiju.sentils.service.Service
 import org.bukkit.Location
 import java.io.File
 import java.io.Serial
 
+private val userService = serviceProvider.get<UserService>()
+
 class GeneratorService(
     private val plugin: SennetIdle
 ) : Service() {
     private val generatorFile = File(plugin.dataFolder, "generators.json")
 
+    val hologramHandler = HologramHandler(plugin)
     val generators = hashMapOf<String, CraftingGenerator>()
 
     init {
@@ -27,6 +33,7 @@ class GeneratorService(
 
     override fun onDisable() {
         saveGenerators()
+        hologramHandler.deleteAllHolograms()
     }
 
     private fun loadGenerators() {
@@ -54,7 +61,16 @@ class GeneratorService(
     }
 
     fun createNewGenerator(id: String, location: Location) {
-        generators[id] = CraftingGenerator(plugin, id, location)
+        val generator = CraftingGenerator(plugin, id, location)
+
+        generators[id] = generator
+        hologramHandler.createHolograms(generator)
+    }
+
+    fun deleteGenerator(id: String) {
+        val generator = generators.remove(id) ?: return
+
+        generator.dispose()
     }
 
     fun doesGeneratorExistsWithId(id: String) = generators.containsKey(id)

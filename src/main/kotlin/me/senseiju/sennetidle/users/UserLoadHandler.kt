@@ -36,6 +36,8 @@ class UserLoadHandler(private val plugin: SennetIdle) {
                         it[UserReagentsTable.reagentAmount]!!
                     )
             }
+
+        user.recalculatePassiveDPS()
     }
 
     private fun loadUserIdleMob(user: User) {

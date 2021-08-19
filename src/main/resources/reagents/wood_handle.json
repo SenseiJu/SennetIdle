@@ -2,8 +2,6 @@
     "id": "wood_handle",
     "material": "STICK",
     "displayName": "Wooden Handle",
-    "space": 0.1,
-    "value": 3,
     "craftingTime": 3,
     "craftingReagents": [
         {

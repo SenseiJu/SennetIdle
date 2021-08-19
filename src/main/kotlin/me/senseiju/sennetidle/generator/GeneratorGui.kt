@@ -81,11 +81,13 @@ private fun Player.openSelectNewCraftingReagentGui(user: User, generator: Crafti
         reagent.craftingReagents.isNotEmpty() && generator.activeUserCrafts[user]?.reagent != reagent
     }.forEach { reagent ->
         gui.addItem(
-            ItemBuilder.from(reagent.material).asGuiItem {
-                generator.startReagentCrafting(user, reagent)
+            ItemBuilder.from(reagent.material)
+                .name(text(reagent.displayName, NamedTextColor.YELLOW))
+                .asGuiItem {
+                    generator.startReagentCrafting(user, reagent)
 
-                this.openGeneratorGui(user, generator)
-            }
+                    this.openGeneratorGui(user, generator)
+                }
         )
     }
 

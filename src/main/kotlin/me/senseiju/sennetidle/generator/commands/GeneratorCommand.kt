@@ -29,4 +29,18 @@ class GeneratorCommand(
 
         generatorService.createNewGenerator(id, block.location)
     }
+
+    @SubCommand("Remove")
+    @Permission(PERMISSION_DEV)
+    fun remove(sender: Player) {
+        val block = sender.rayTraceBlocks(3.0)?.hitBlock
+        if (block == null) {
+            println("Block not found")
+            return
+        }
+
+        val generator = generatorService.getGeneratorByLocation(block.location) ?: return
+
+        generatorService.deleteGenerator(generator.id)
+    }
 }

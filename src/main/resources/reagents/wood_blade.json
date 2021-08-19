@@ -2,8 +2,6 @@
     "id": "wood_blade",
     "material": "WOODEN_SWORD",
     "displayName": "Wooden Blade",
-    "space": 0.3,
-    "value": 6.5,
     "craftingTime": 5,
     "craftingReagents": [
         {

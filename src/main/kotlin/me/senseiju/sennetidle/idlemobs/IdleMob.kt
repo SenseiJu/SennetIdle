@@ -24,7 +24,9 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.scheduler.BukkitRunnable
+import kotlin.math.max
 import kotlin.math.pow
+import kotlin.properties.Delegates
 
 private const val ONE_SECOND_IN_TICKS = 20L
 private const val TEMP_BASE_HEALTH = 100.0
@@ -39,6 +41,8 @@ class IdleMob(
     private val spawnLocation: Location
 ) : BukkitRunnable(), Listener {
     private lateinit var activeEntity: LivingEntity
+    private var health by Delegates.notNull<Double>()
+    private var maxHealth by Delegates.notNull<Double>()
     private val healthBar = plugin.server.createBossBar("Mob Health", BarColor.RED, BarStyle.SOLID)
 
     init {
@@ -56,10 +60,10 @@ class IdleMob(
     }
 
     private fun applyDamage() {
-        if (activeEntity.health - user.passiveDPS <= 0) {
+        if (health - user.passiveDPS <= 0) {
             activeEntity.health = 0.0
         } else {
-            activeEntity.health = activeEntity.health - user.passiveDPS
+            health -= user.passiveDPS
         }
 
         updateBossBar()
@@ -70,12 +74,12 @@ class IdleMob(
             activeEntity.remove()
         }
 
-        val health = TEMP_BASE_HEALTH //* (1.15.pow(user.currentWave))
+        maxHealth = TEMP_BASE_HEALTH * (1.15.pow(user.currentWave))
+        health = maxHealth
+
         val entity = spawnLocation.world.spawnEntity(spawnLocation, ENTITY_POOL.random()) as LivingEntity
         entity.setAI(false)
-        entity.registerAttribute(Attribute.GENERIC_MAX_HEALTH)
-        entity.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.baseValue = health
-        entity.health = health
+        entity.isSilent = true
 
         activeEntity = entity
 
@@ -92,7 +96,7 @@ class IdleMob(
     }
 
     private fun updateBossBar() {
-        healthBar.progress = activeEntity.health / activeEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.baseValue
+        healthBar.progress = health / maxHealth
     }
 
     //region Event listeners
@@ -111,7 +115,7 @@ class IdleMob(
         if (e.damager.uniqueId == user.uuid) {
             e.damage = Double.MIN_VALUE
 
-            applyDamage()
+            //applyDamage()
         } else if (e.cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) {
             e.isCancelled = true
         }

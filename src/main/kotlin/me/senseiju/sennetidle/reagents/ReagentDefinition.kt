@@ -4,11 +4,13 @@ import dev.triumphteam.gui.builder.item.ItemBuilder
 import kotlinx.serialization.Serializable
 import me.senseiju.sennetidle.serviceProvider
 import me.senseiju.sennetidle.users.UserReagent
+import me.senseiju.sentils.extensions.primitives.color
 import me.senseiju.sentils.serializers.MaterialSerializer
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.newline
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor.*
+import net.kyori.adventure.text.format.Style
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
@@ -19,11 +21,10 @@ data class Reagent(
     val id: String,
     @Serializable(MaterialSerializer::class) val material: Material,
     val displayName: String,
-    val space: Float,
-    val value: Double,
     val craftingTime: Float = -1F,
-    val craftingReagents: List<CraftingReagent>,
-    val upgrades: List<Upgrade>
+    val craftingReagents: List<CraftingReagent> = listOf(),
+    val upgrades: List<Upgrade> = listOf(),
+    val damagePerSecond: Double = 0.0
 ) {
     fun displayItem(userReagent: UserReagent): ItemStack {
         return ItemBuilder.from(material)
