@@ -26,7 +26,7 @@ data class Reagent(
     val craftingReagents: List<CraftingReagent> = listOf(),
     val upgrades: List<Upgrade> = listOf(),
     val damagePerSecond: Double = 0.0,
-    val mobDropWaveUnlock: Long = 0L
+    val mobDropUnlockWave: Long = 0L
 ) {
     fun displayItem(userReagent: UserReagent): ItemStack {
         return ItemBuilder.from(material)

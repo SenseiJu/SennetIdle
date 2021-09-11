@@ -3,8 +3,10 @@ package me.senseiju.sennetidle.users
 import me.senseiju.sennetidle.reagents.Reagent
 import me.senseiju.sennetidle.reagents.ReagentService
 import me.senseiju.sennetidle.serviceProvider
+import me.senseiju.sentils.extensions.primitives.toTimeFormat
 import org.bukkit.Bukkit
 import java.util.*
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 
 private val reagentService = serviceProvider.get<ReagentService>()
@@ -17,6 +19,8 @@ class User(
     var passiveDPS = 0.0
         private set
     var lastSeen = System.currentTimeMillis()
+
+    fun timeLoggedOut() = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - lastSeen).toTimeFormat()
 
     fun addReagent(reagentId: String, amount: Long) {
         reagents[reagentId]?.let {
@@ -47,7 +51,7 @@ class User(
     }
 
     fun rewardWaveReagent() {
-        reagentService.reagents.filter { it.value.mobDropWaveUnlock in 1..currentWave }.forEach {
+        reagentService.reagents.filter { it.value.mobDropUnlockWave in 1..currentWave }.forEach {
             addReagent(it.key, 5)
         }
     }

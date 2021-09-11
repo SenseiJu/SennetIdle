@@ -17,7 +17,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 private val userService = serviceProvider.get<UserService>()
-private val regentService = serviceProvider.get<ReagentService>()
+private val reagentService = serviceProvider.get<ReagentService>()
 private val inventoryService = serviceProvider.get<InventoryService>()
 
 @Command("SennetIdle")
@@ -40,15 +40,15 @@ class SennetIdleCommand(plugin: SennetIdle) : CommandBase() {
 
     @SubCommand("AddRegent")
     @Permission(PERMISSION_DEV)
-    fun addRegent(sender: Player, target: Player, regentId: String, @Optional amount: Int? = 1) {
+    fun addRegent(sender: Player, target: Player, reagentId: String, @Optional amount: Long? = 1) {
         amount ?: return
 
-        if (!regentService.reagents.containsKey(regentId)) return
+        if (!reagentService.reagents.containsKey(reagentId)) return
 
         val user = userService.getUser(target.uniqueId)
-        user.reagents[regentId]?.let { it.amount += amount }
+        user.addReagent(reagentId, amount)
 
-        logger.info("Added $amount $regentId to ${target.name}")
+        logger.info("Added $amount $reagentId to ${target.name}")
     }
 
     @SubCommand("SetTotalRegent")
@@ -56,7 +56,7 @@ class SennetIdleCommand(plugin: SennetIdle) : CommandBase() {
     fun setTotalRegent(sender: Player, target: Player, regentId: String, @Optional amount: Long? = 1) {
         amount ?: return
 
-        if (!regentService.reagents.containsKey(regentId)) return
+        if (!reagentService.reagents.containsKey(regentId)) return
 
         val user = userService.getUser(target.uniqueId)
         user.reagents[regentId]?.let { it.totalAmountCrafted = amount }

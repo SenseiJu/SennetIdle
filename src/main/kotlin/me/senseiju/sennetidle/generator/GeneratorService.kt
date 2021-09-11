@@ -77,17 +77,18 @@ class GeneratorService(
 
     fun doesGeneratorExistsWithId(id: String) = generators.containsKey(id)
 
-    fun getGeneratorByLocation(location: Location) = generators.values.firstOrNull { generator -> generator.location == location }
+    fun getGeneratorByLocation(location: Location) =
+        generators.values.firstOrNull { generator -> generator.location == location }
 
     fun accelerateGenerators(user: User) {
-        newRunnable {
-            val logOutPeriod = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - user.lastSeen)
+        val logOutPeriod = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - user.lastSeen)
 
-            generators.values.forEach {
+        generators.values.forEach {
+            newRunnable {
                 for (i in 0..logOutPeriod * 20) {
                     it.activeUserCrafts[user]?.run()
                 }
-            }
-        }.runTaskAsynchronously(plugin)
+            }.runTaskAsynchronously(plugin)
+        }
     }
 }

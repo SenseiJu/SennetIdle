@@ -1,21 +1,15 @@
 package me.senseiju.sennetidle.users
 
-import me.senseiju.sennetidle.SennetIdle
 import me.senseiju.sennetidle.database
 import me.senseiju.sennetidle.database.UserActiveGeneratorsTable
 import me.senseiju.sennetidle.database.UserIdleMobTable
+import me.senseiju.sennetidle.database.UserMetaDataTable
 import me.senseiju.sennetidle.database.UserReagentsTable
 import me.senseiju.sennetidle.generator.GeneratorService
-import me.senseiju.sennetidle.idlemobs.IdleMobService
 import me.senseiju.sennetidle.reagents.ReagentService
 import me.senseiju.sennetidle.serviceProvider
-import me.senseiju.sentils.runnables.newRunnable
-import org.bukkit.plugin.java.JavaPlugin
 import org.ktorm.dsl.*
 
-private val plugin = JavaPlugin.getPlugin(SennetIdle::class.java)
-
-private val idleMobService = serviceProvider.get<IdleMobService>()
 private val generatorService = serviceProvider.get<GeneratorService>()
 private val reagentService = serviceProvider.get<ReagentService>()
 
@@ -25,6 +19,7 @@ object UserLoadHandler {
         loadUserRegents(user)
         loadUserIdleMob(user)
         loadUserActiveGenerators(user)
+        loadUserMetaData(user)
     }
 
     private fun loadUserRegents(user: User) {
@@ -61,6 +56,15 @@ object UserLoadHandler {
                 val reagent = reagentService.reagents[it[UserActiveGeneratorsTable.reagentId]] ?: return@forEach
 
                 generator.startReagentCrafting(user, reagent)
+            }
+    }
+
+    private fun loadUserMetaData(user: User) {
+        database.from(UserMetaDataTable)
+            .select()
+            .where(UserMetaDataTable.userUUID eq user.uuid.toString())
+            .forEach {
+                user.lastSeen = it[UserMetaDataTable.lastSeenTime]!!
             }
     }
 }

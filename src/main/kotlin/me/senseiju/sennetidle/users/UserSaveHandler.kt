@@ -3,6 +3,7 @@ package me.senseiju.sennetidle.users
 import me.senseiju.sennetidle.database
 import me.senseiju.sennetidle.database.UserActiveGeneratorsTable
 import me.senseiju.sennetidle.database.UserIdleMobTable
+import me.senseiju.sennetidle.database.UserMetaDataTable
 import me.senseiju.sennetidle.database.UserReagentsTable
 import me.senseiju.sennetidle.generator.GeneratorService
 import me.senseiju.sennetidle.serviceProvider
@@ -16,6 +17,7 @@ object UserSaveHandler {
         saveUserReagents(user)
         saveUserIdleMob(user)
         saveUserActiveGenerators(user)
+        saveUserMetaData(user)
     }
 
     private fun saveUserReagents(user: User) {
@@ -54,6 +56,16 @@ object UserSaveHandler {
                 onDuplicateKey {
                     set(it.reagentId, reagentId)
                 }
+            }
+        }
+    }
+
+    private fun saveUserMetaData(user: User) {
+        database.insertOrUpdate(UserMetaDataTable) {
+            set(it.userUUID, user.uuid.toString())
+            set(it.lastSeenTime, user.lastSeen)
+            onDuplicateKey {
+                set(it.lastSeenTime, user.lastSeen)
             }
         }
     }
