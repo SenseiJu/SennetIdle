@@ -1,0 +1,21 @@
+{
+    "id": "iron_sword",
+    "material": "IRON_SWORD",
+    "displayName": "Iron Sword",
+    "craftingTime": 80,
+    "damagePerSecond": 70,
+    "craftingReagents": [
+        {
+            "id": "stone_sword",
+            "amount": 1
+        },
+        {
+            "id": "wood_handle",
+            "amount": 1
+        },
+        {
+            "id": "iron_blade",
+            "amount": 1
+        }
+    ]
+}

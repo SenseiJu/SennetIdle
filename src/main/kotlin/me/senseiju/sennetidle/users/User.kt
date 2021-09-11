@@ -1,9 +1,9 @@
 package me.senseiju.sennetidle.users
 
-import me.senseiju.sennetidle.idlemobs.IdleMob
 import me.senseiju.sennetidle.reagents.Reagent
 import me.senseiju.sennetidle.reagents.ReagentService
 import me.senseiju.sennetidle.serviceProvider
+import org.bukkit.Bukkit
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 
@@ -14,9 +14,9 @@ class User(
     val reagents: HashMap<String, UserReagent>,
     var currentWave: Int
 ) {
-    lateinit var idleMob: IdleMob
     var passiveDPS = 0.0
         private set
+    var lastSeen = System.currentTimeMillis()
 
     fun addReagent(reagentId: String, amount: Long) {
         reagents[reagentId]?.let {
@@ -26,6 +26,29 @@ class User(
 
         if (reagentService.reagents[reagentId]?.damagePerSecond ?: 0.0 > 0.0) {
             recalculatePassiveDPS()
+        }
+    }
+
+    /**
+     * Attempts to craft the reagent if the user has met the crafting requirements
+     *
+     * @return true if crafted successfully otherwise false
+     */
+    fun tryCraftReagent(reagent: Reagent): Boolean {
+        if (hasCraftingReagents(reagent)) {
+            reagent.craftingReagents.forEach {
+                removeReagent(it.id, it.amount)
+            }
+            addReagent(reagent.id, 1)
+            return true
+        }
+
+        return false
+    }
+
+    fun rewardWaveReagent() {
+        reagentService.reagents.filter { it.value.mobDropWaveUnlock in 1..currentWave }.forEach {
+            addReagent(it.key, 5)
         }
     }
 
@@ -67,6 +90,8 @@ class User(
 
         return true
     }
+
+    fun getBukkitPlayer() = Bukkit.getPlayer(uuid)
 }
 
 class UserReagent(

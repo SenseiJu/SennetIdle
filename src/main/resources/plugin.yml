@@ -5,6 +5,7 @@ api-version: 1.17
 depend:
   - ProtocolLib
   - HolographicDisplays
+  - PlaceholderAPI
 
 author: SenseiJu
 website: https://senseiju.me

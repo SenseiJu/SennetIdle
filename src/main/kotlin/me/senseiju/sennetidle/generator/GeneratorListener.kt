@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerJoinEvent
 
 private val userService = serviceProvider.get<UserService>()
 
@@ -23,5 +24,14 @@ class GeneratorListener(
         e.player.openGeneratorGui(user, generator)
 
         e.isCancelled = true
+    }
+
+    @EventHandler
+    private fun onPlayerJoinEvent(e: PlayerJoinEvent) {
+        if (!e.player.isOnline) return
+
+        val user = userService.getUser(e.player.uniqueId)
+
+        //generatorService.accelerateGenerators(user)
     }
 }

@@ -8,16 +8,14 @@ import me.senseiju.sennetidle.reagents.ReagentService
 import me.senseiju.sennetidle.serviceProvider
 import me.senseiju.sennetidle.users.User
 import me.senseiju.sennetidle.utils.*
-import me.senseiju.sentils.runnables.newRunnable
 import net.kyori.adventure.text.Component.newline
 import net.kyori.adventure.text.Component.text
-import net.kyori.adventure.text.format.NamedTextColor
-import org.apache.commons.lang.Validate
+import net.kyori.adventure.text.format.NamedTextColor.*
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
-import kotlin.math.round
 
 private val plugin = JavaPlugin.getPlugin(SennetIdle::class.java)
 private val reagentService = serviceProvider.get<ReagentService>()
@@ -25,7 +23,7 @@ private val reagentService = serviceProvider.get<ReagentService>()
 fun Player.openGeneratorGui(user: User, generator: CraftingGenerator) {
     val gui = Gui.gui()
         .disableAllInteractions()
-        .title(text(""))
+        .title(text("Generator", RED, TextDecoration.BOLD))
         .rows(3)
         .create()
 
@@ -45,11 +43,11 @@ fun Player.openGeneratorGui(user: User, generator: CraftingGenerator) {
                     it.add(
                         text(
                             "Craft time remaining: ",
-                            NamedTextColor.AQUA
+                            AQUA
                         ).append(
                             text(
-                                String.format("%.1f", generator.activeUserCrafts[user]?.getTimeRemaining() ?: 0F),
-                                NamedTextColor.GRAY
+                                generator.activeUserCrafts[user]?.getTimeRemainingString() ?: "0F",
+                                GRAY
                             )
                         )
                     )
@@ -59,7 +57,6 @@ fun Player.openGeneratorGui(user: User, generator: CraftingGenerator) {
     }
 
     gui.setItem(2, 5, updatingGuiItem)
-
     gui.openUpdating(plugin, this)
 }
 
@@ -82,7 +79,7 @@ private fun Player.openSelectNewCraftingReagentGui(user: User, generator: Crafti
     }.forEach { reagent ->
         gui.addItem(
             ItemBuilder.from(reagent.material)
-                .name(text(reagent.displayName, NamedTextColor.YELLOW))
+                .name(text(reagent.displayName, YELLOW))
                 .asGuiItem {
                     generator.startReagentCrafting(user, reagent)
 

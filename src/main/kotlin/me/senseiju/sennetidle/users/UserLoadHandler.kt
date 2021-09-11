@@ -10,13 +10,16 @@ import me.senseiju.sennetidle.idlemobs.IdleMobService
 import me.senseiju.sennetidle.reagents.ReagentService
 import me.senseiju.sennetidle.serviceProvider
 import me.senseiju.sentils.runnables.newRunnable
+import org.bukkit.plugin.java.JavaPlugin
 import org.ktorm.dsl.*
+
+private val plugin = JavaPlugin.getPlugin(SennetIdle::class.java)
 
 private val idleMobService = serviceProvider.get<IdleMobService>()
 private val generatorService = serviceProvider.get<GeneratorService>()
 private val reagentService = serviceProvider.get<ReagentService>()
 
-class UserLoadHandler(private val plugin: SennetIdle) {
+object UserLoadHandler {
 
     fun loadUser(user: User) {
         loadUserRegents(user)
@@ -47,10 +50,6 @@ class UserLoadHandler(private val plugin: SennetIdle) {
             .forEach {
                 user.currentWave = it[UserIdleMobTable.currentWave]!!
             }
-
-        newRunnable {
-            user.idleMob = idleMobService.createIdleMob(user)
-        }.runTask(plugin)
     }
 
     private fun loadUserActiveGenerators(user: User) {

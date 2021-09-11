@@ -9,12 +9,9 @@ import me.senseiju.sentils.registerEvents
 import me.senseiju.sentils.service.Service
 import java.util.*
 
+private val regentService = serviceProvider.get<ReagentService>()
+
 class UserService(plugin: SennetIdle) : Service() {
-    private val regentService = serviceProvider.get<ReagentService>()
-
-    private val userSaveHandler = UserSaveHandler()
-    private val userLoadHandler = UserLoadHandler(plugin)
-
     val users = hashMapOf<UUID, User>()
 
     //region Service
@@ -22,7 +19,7 @@ class UserService(plugin: SennetIdle) : Service() {
     init {
         plugin.registerEvents(UserConnectListener(this))
 
-        UserSaveTask(plugin, this)
+        UserSaveTask(plugin)
     }
 
     override fun onDisable() {
@@ -35,9 +32,9 @@ class UserService(plugin: SennetIdle) : Service() {
 
     fun saveUser(user: User, async: Boolean) {
         if (async) {
-            ioScope { userSaveHandler.saveUser(user) }
+            ioScope { UserSaveHandler.saveUser(user) }
         } else {
-            userSaveHandler.saveUser(user)
+            UserSaveHandler.saveUser(user)
         }
     }
 
@@ -48,12 +45,12 @@ class UserService(plugin: SennetIdle) : Service() {
     fun createUser(uuid: UUID) {
         val user = createEmptyUser(uuid)
 
-        userLoadHandler.loadUser(user)
+        UserLoadHandler.loadUser(user)
 
         users[uuid] = user
     }
 
-    private fun createEmptyUser(uuid: UUID) = User(uuid, emptyUserRegentsMap(), 0)
+    private fun createEmptyUser(uuid: UUID) = User(uuid, emptyUserRegentsMap(), 1)
 
     private fun emptyUserRegentsMap() = regentService.reagents.values.associateTo(hashMapOf()) { it.id to UserReagent(it.id) }
 }

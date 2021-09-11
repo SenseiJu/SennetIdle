@@ -1,0 +1,6 @@
+{
+    "id": "iron_ore",
+    "material": "IRON_ORE",
+    "displayName": "Iron ore",
+    "mobDropUnlockWave": 30
+}

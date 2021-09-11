@@ -13,6 +13,7 @@ import net.kyori.adventure.text.format.NamedTextColor.*
 import net.kyori.adventure.text.format.Style
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
+import java.text.DecimalFormat
 
 private val reagentService = serviceProvider.get<ReagentService>()
 
@@ -24,7 +25,8 @@ data class Reagent(
     val craftingTime: Float = -1F,
     val craftingReagents: List<CraftingReagent> = listOf(),
     val upgrades: List<Upgrade> = listOf(),
-    val damagePerSecond: Double = 0.0
+    val damagePerSecond: Double = 0.0,
+    val mobDropWaveUnlock: Long = 0L
 ) {
     fun displayItem(userReagent: UserReagent): ItemStack {
         return ItemBuilder.from(material)

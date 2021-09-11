@@ -1,5 +1,6 @@
 {
     "id": "wood",
     "material": "OAK_PLANKS",
-    "displayName": "Wood"
+    "displayName": "Wood",
+    "mobDropUnlockWave": 1
 }

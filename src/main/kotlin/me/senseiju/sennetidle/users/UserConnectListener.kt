@@ -4,9 +4,11 @@ import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor.*
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
 
 class UserConnectListener(private val userService: UserService) : Listener {
     private val users = userService.users
@@ -20,11 +22,16 @@ class UserConnectListener(private val userService: UserService) : Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     private fun onPlayerJoin(e: PlayerJoinEvent) {
         if (users.containsKey(e.player.uniqueId)) return
 
         e.player.kick(FAILED_TO_LOAD_DATA)
+    }
+
+    @EventHandler
+    private fun onPlayerQuitEvent(e: PlayerQuitEvent) {
+        users[e.player.uniqueId]?.lastSeen = System.currentTimeMillis()
     }
 }
 

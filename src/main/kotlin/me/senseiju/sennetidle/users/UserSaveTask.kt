@@ -1,11 +1,15 @@
 package me.senseiju.sennetidle.users
 
 import me.senseiju.sennetidle.SennetIdle
+import me.senseiju.sennetidle.idlemobs.IdleMobService
+import me.senseiju.sennetidle.serviceProvider
 import me.senseiju.sentils.CleanupTask
 
+private val userService = serviceProvider.get<UserService>()
+private val idleService = serviceProvider.get<IdleMobService>()
+
 class UserSaveTask(
-    private val plugin: SennetIdle,
-    private val userService: UserService
+    private val plugin: SennetIdle
 ) : CleanupTask() {
 
     override fun cleanup() {
@@ -17,8 +21,7 @@ class UserSaveTask(
             }
 
             if (!player.isOnline) {
-                user.idleMob.dispose()
-
+                idleService.disposeWaveHandler(user.uuid)
                 userService.users.remove(user.uuid)
             }
         }

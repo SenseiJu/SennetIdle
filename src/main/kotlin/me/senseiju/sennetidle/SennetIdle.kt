@@ -16,6 +16,7 @@ import org.bukkit.GameRule
 import org.bukkit.plugin.java.JavaPlugin
 import org.ktorm.database.Database
 import org.ktorm.support.mysql.MySqlDialect
+import java.lang.Exception
 
 val serviceProvider = ServiceProvider()
 
@@ -28,9 +29,15 @@ class SennetIdle : JavaPlugin() {
     override fun onEnable() {
         commandManager = CommandManager(this)
 
-        enableServices()
-        registerCommands()
-        establishDatabase()
+        try {
+            establishDatabase()
+            enableServices()
+            registerCommands()
+        } catch (ex: Exception) {
+            slF4JLogger.error("Failed to load a service. Check stack trace for more information. SHUTTING DOWN")
+            server.shutdown()
+            return
+        }
 
         server.worlds.forEach {
             it.setGameRule(GameRule.MAX_ENTITY_CRAMMING, 0)
@@ -39,6 +46,8 @@ class SennetIdle : JavaPlugin() {
             it.setGameRule(GameRule.DO_MOB_SPAWNING, false)
             it.setGameRule(GameRule.DO_MOB_LOOT, false)
         }
+
+        SennetIdlePlaceholders().register()
     }
 
     override fun onDisable() {

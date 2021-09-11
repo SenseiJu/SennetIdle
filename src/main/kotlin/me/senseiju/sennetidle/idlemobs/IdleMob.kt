@@ -2,17 +2,20 @@ package me.senseiju.sennetidle.idlemobs
 
 import com.comphenix.protocol.PacketType
 import com.comphenix.protocol.ProtocolLibrary
-import com.comphenix.protocol.events.PacketAdapter
 import com.comphenix.protocol.events.PacketContainer
-import com.comphenix.protocol.events.PacketEvent
 import me.senseiju.sennetidle.SennetIdle
 import me.senseiju.sennetidle.users.User
 import me.senseiju.sentils.registerEvents
-import me.senseiju.sentils.runnables.newRunnable
+import me.senseiju.sentils.runnables.CountdownRunnable
+import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
+import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.attribute.Attribute
+import org.bukkit.NamespacedKey
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
+import org.bukkit.boss.KeyedBossBar
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
@@ -20,140 +23,115 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
-import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDeathEvent
-import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.scheduler.BukkitRunnable
-import kotlin.math.max
-import kotlin.math.pow
-import kotlin.properties.Delegates
+import org.bukkit.plugin.java.JavaPlugin
+import kotlin.math.roundToLong
 
-private const val ONE_SECOND_IN_TICKS = 20L
-private const val TEMP_BASE_HEALTH = 100.0
-
-private val ENTITY_POOL = setOf(EntityType.ZOMBIE, EntityType.BLAZE, EntityType.SKELETON)
-
+private val plugin = JavaPlugin.getPlugin(SennetIdle::class.java)
 private val protocolManager = ProtocolLibrary.getProtocolManager()
 
 class IdleMob(
-    private val plugin: SennetIdle,
+    type: EntityType,
+    spawnLocation: Location,
+    private val maxHealth: Double,
     private val user: User,
-    private val spawnLocation: Location
-) : BukkitRunnable(), Listener {
-    private lateinit var activeEntity: LivingEntity
-    private var health by Delegates.notNull<Double>()
-    private var maxHealth by Delegates.notNull<Double>()
-    private val healthBar = plugin.server.createBossBar("Mob Health", BarColor.RED, BarStyle.SOLID)
+    private var timeLimit: Int = -1
+) : CountdownRunnable(), Listener {
+    override var timeToComplete: Long = timeLimit.toLong()
+
+    private var currentHealth = maxHealth
+    private val entity = spawnLocation.world.spawnEntity(spawnLocation, type) as LivingEntity
+    private lateinit var timeLimitKey: NamespacedKey
+    private lateinit var timeLimitBossBar: KeyedBossBar
+
+    var progressPlayer = false
 
     init {
-        plugin.registerEvents(this)
-
-        respawnNextMob()
-
-        runTaskTimer(plugin, ONE_SECOND_IN_TICKS, ONE_SECOND_IN_TICKS)
-    }
-
-    fun dispose() {
-        activeEntity.remove()
-
-        HandlerList.unregisterAll(this)
-    }
-
-    private fun applyDamage() {
-        if (health - user.passiveDPS <= 0) {
-            activeEntity.health = 0.0
-        } else {
-            health -= user.passiveDPS
-        }
-
-        updateBossBar()
-    }
-
-    private fun respawnNextMob() {
-        if (this::activeEntity.isInitialized && !activeEntity.isDead) {
-            activeEntity.remove()
-        }
-
-        maxHealth = TEMP_BASE_HEALTH * (1.15.pow(user.currentWave))
-        health = maxHealth
-
-        val entity = spawnLocation.world.spawnEntity(spawnLocation, ENTITY_POOL.random()) as LivingEntity
         entity.setAI(false)
         entity.isSilent = true
+        entity.isCustomNameVisible = true
 
-        activeEntity = entity
+        hideMobFromAllPlayers(user.getBukkitPlayer())
 
-        hideMobFromAllPlayers(plugin.server.getPlayer(user.uuid))
+        plugin.registerEvents(this)
+
+        if (timeLimit > 0) {
+            timeLimitKey = NamespacedKey(plugin, "idle-mob-time-limit-${user.uuid.toString().lowercase()}")
+            timeLimitBossBar = plugin.server.createBossBar(timeLimitKey, "Time remaining", BarColor.WHITE, BarStyle.SOLID)
+            user.getBukkitPlayer()?.let { timeLimitBossBar.addPlayer(it) }
+            start(plugin)
+        }
+    }
+
+    /**
+     * This is where logic for when the time has run out to kill a mob. Used for boss's
+     */
+    override fun onComplete() {
+        dispose()
+    }
+
+    override fun executeEverySecond() {
+        timeLimitBossBar.progress = timeToComplete.toDouble() / timeLimit
+    }
+
+    fun applyPassiveDPS() {
+        currentHealth -= user.passiveDPS
+
+        if (currentHealth <= 0) {
+            entity.health = 0.0
+        }
+
+        updateEntityCustomName()
+    }
+
+    fun healthDecimal() = currentHealth / maxHealth
+
+    fun isEntityDead() = entity.isDead
+
+    fun dispose() {
+        HandlerList.unregisterAll(this)
+        if (!entity.isDead) entity.remove()
+        if (timeToComplete != -1L) cancel()
+        if (this::timeLimitBossBar.isInitialized && this::timeLimitKey.isInitialized) {
+            timeLimitBossBar.removeAll()
+            plugin.server.removeBossBar(timeLimitKey)
+        }
+    }
+
+    private fun updateEntityCustomName() {
+        entity.customName(
+            text(
+                "${currentHealth.roundToLong().coerceAtLeast(0)}/${maxHealth.roundToLong()}",
+                NamedTextColor.DARK_GREEN,
+                TextDecoration.BOLD
+            )
+        )
     }
 
     private fun hideMobFromAllPlayers(excludedPlayer: Player?) {
         val packet = PacketContainer(PacketType.Play.Server.ENTITY_DESTROY)
-        packet.intLists.writeSafely(0, mutableListOf(activeEntity.entityId))
+        packet.intLists.writeSafely(0, mutableListOf(entity.entityId))
 
-        for (player in plugin.server.onlinePlayers.filter { player -> player.uniqueId != excludedPlayer?.uniqueId }) {
+        for (player in Bukkit.getOnlinePlayers().filter { player -> player.uniqueId != excludedPlayer?.uniqueId }) {
             protocolManager.sendServerPacket(player, packet)
         }
     }
 
-    private fun updateBossBar() {
-        healthBar.progress = health / maxHealth
-    }
-
-    //region Event listeners
-
     @EventHandler
-    private fun onPlayerJoin(e: PlayerJoinEvent) {
-        if (e.player.uniqueId == user.uuid ) {
-            healthBar.addPlayer(e.player)
-        }
+    private fun onEntityDamageByEntityEvent(e: EntityDamageByEntityEvent) {
+        if (e.entity.uniqueId != entity.uniqueId || e.damager !is Player || e.damager.uniqueId != user.uuid) return
+
+        e.damage = Double.MIN_VALUE
+
+        applyPassiveDPS()
     }
 
     @EventHandler
-    private fun onEntityByPlayerDamage(e: EntityDamageByEntityEvent) {
-        if (e.entity.uniqueId != activeEntity.uniqueId) return
+    private fun onEntityDeathEvent(e: EntityDeathEvent) {
+        if (e.entity.uniqueId != entity.uniqueId) return
 
-        if (e.damager.uniqueId == user.uuid) {
-            e.damage = Double.MIN_VALUE
+        dispose()
 
-            //applyDamage()
-        } else if (e.cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) {
-            e.isCancelled = true
-        }
-    }
-
-    @EventHandler
-    private fun onEntityDeath(e: EntityDeathEvent) {
-        if (e.entity.uniqueId == activeEntity.uniqueId) {
-            user.currentWave += 1
-
-            newRunnable { respawnNextMob() }.runTaskLater(plugin, 20)
-        }
-    }
-
-    //endregion
-
-    //region Bukkit runnable
-
-    override fun run() {
-        applyDamage()
-    }
-
-    //endregion
-}
-
-private val particleIds = setOf(0, 5)
-
-class IdleMobParticleListener(
-    plugin: SennetIdle
-) : PacketAdapter(plugin, PacketType.Play.Server.WORLD_PARTICLES) {
-
-    init {
-        protocolManager.addPacketListener(this)
-    }
-
-    override fun onPacketSending(event: PacketEvent) {
-        if (event.packet.integers.values.any { id ->  particleIds.contains(id)}) {
-            event.isCancelled = true
-        }
+        progressPlayer = true
     }
 }

@@ -1,0 +1,12 @@
+{
+    "id": "iron_blade",
+    "material": "IRON_SWORD",
+    "displayName": "Iron Blade",
+    "craftingTime": 50,
+    "craftingReagents": [
+        {
+            "id": "iron",
+            "amount": 5
+        }
+    ]
+}

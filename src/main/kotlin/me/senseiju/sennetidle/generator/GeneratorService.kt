@@ -7,12 +7,14 @@ import me.senseiju.sennetidle.SennetIdle
 import me.senseiju.sennetidle.generator.commands.GeneratorCommand
 import me.senseiju.sennetidle.generator.holograms.HologramHandler
 import me.senseiju.sennetidle.serviceProvider
+import me.senseiju.sennetidle.users.User
 import me.senseiju.sennetidle.users.UserService
 import me.senseiju.sentils.registerEvents
+import me.senseiju.sentils.runnables.newRunnable
 import me.senseiju.sentils.service.Service
 import org.bukkit.Location
 import java.io.File
-import java.io.Serial
+import java.util.concurrent.TimeUnit
 
 private val userService = serviceProvider.get<UserService>()
 
@@ -76,4 +78,16 @@ class GeneratorService(
     fun doesGeneratorExistsWithId(id: String) = generators.containsKey(id)
 
     fun getGeneratorByLocation(location: Location) = generators.values.firstOrNull { generator -> generator.location == location }
+
+    fun accelerateGenerators(user: User) {
+        newRunnable {
+            val logOutPeriod = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - user.lastSeen)
+
+            generators.values.forEach {
+                for (i in 0..logOutPeriod * 20) {
+                    it.activeUserCrafts[user]?.run()
+                }
+            }
+        }.runTaskAsynchronously(plugin)
+    }
 }

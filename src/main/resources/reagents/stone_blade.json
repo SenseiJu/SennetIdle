@@ -1,0 +1,12 @@
+{
+    "id": "stone_blade",
+    "material": "STONE_SWORD",
+    "displayName": "Stone Blade",
+    "craftingTime": 12,
+    "craftingReagents": [
+        {
+            "id": "stone",
+            "amount": 8
+        }
+    ]
+}

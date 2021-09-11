@@ -10,7 +10,7 @@ import org.ktorm.support.mysql.insertOrUpdate
 
 private val generatorService = serviceProvider.get<GeneratorService>()
 
-class UserSaveHandler {
+object UserSaveHandler {
 
     fun saveUser(user: User) {
         saveUserReagents(user)

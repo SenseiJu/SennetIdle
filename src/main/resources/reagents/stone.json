@@ -1,0 +1,6 @@
+{
+    "id": "stone",
+    "material": "STONE",
+    "displayName": "Stone",
+    "mobDropUnlockWave": 15
+}

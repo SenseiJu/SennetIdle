@@ -1,6 +1,8 @@
 package me.senseiju.sennetidle.generator
 
 import me.senseiju.sennetidle.SennetIdle
+import me.senseiju.sennetidle.generator.holograms.updateGeneratorHologram
+import me.senseiju.sennetidle.generator.holograms.updateTimeRemainingLine
 import me.senseiju.sennetidle.reagents.Reagent
 import me.senseiju.sennetidle.users.User
 import org.bukkit.scheduler.BukkitRunnable
@@ -14,7 +16,7 @@ class CraftingReagent(
 ) : BukkitRunnable() {
     val userReagent = user.reagents[reagent.id]!!
     private var timeRemainingToCraftInTicks by Delegates.notNull<Float>()
-    private var craftingPaused = true
+    var craftingPaused = true
 
     init {
         resetTime()
@@ -22,7 +24,7 @@ class CraftingReagent(
         runTaskTimerAsynchronously(plugin, 0L, 1L)
     }
 
-    fun getTimeRemaining() = timeRemainingToCraftInTicks / 20
+    fun getTimeRemainingString() = String.format("%.1f", timeRemainingToCraftInTicks / 20)
 
     override fun run() {
         if (generator.activeUserCrafts[user] != this) {
@@ -36,25 +38,21 @@ class CraftingReagent(
 
                 craftingPaused = false
             } else {
+                generator.userHolograms[user]?.updateTimeRemainingLine(this)
+
                 return
             }
         }
 
         if (timeRemainingToCraftInTicks <= 0) {
-            if (user.hasCraftingReagents(reagent)) {
-                reagent.craftingReagents.forEach {
-                    user.removeReagent(it.id, it.amount)
-                }
-
-                user.addReagent(reagent.id, 1)
-            }
-
+            user.tryCraftReagent(reagent)
             craftingPaused = true
-
             return
         }
 
         timeRemainingToCraftInTicks--
+
+        generator.userHolograms[user]?.updateTimeRemainingLine(this)
     }
 
     private fun resetTime() {
