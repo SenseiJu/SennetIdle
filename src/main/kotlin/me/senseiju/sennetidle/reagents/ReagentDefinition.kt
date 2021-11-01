@@ -3,6 +3,7 @@ package me.senseiju.sennetidle.reagents
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import kotlinx.serialization.Serializable
 import me.senseiju.sennetidle.serviceProvider
+import me.senseiju.sennetidle.users.User
 import me.senseiju.sennetidle.users.UserReagent
 import me.senseiju.sentils.extensions.primitives.color
 import me.senseiju.sentils.serializers.MaterialSerializer
@@ -26,7 +27,8 @@ data class Reagent(
     val craftingReagents: List<CraftingReagent> = listOf(),
     val upgrades: List<Upgrade> = listOf(),
     val damagePerSecond: Double = 0.0,
-    val mobDropUnlockWave: Long = 0L
+    val mobDropUnlockWave: Int = 0,
+    val mobDropBaseAmount: Int = 0
 ) {
     fun displayItem(userReagent: UserReagent): ItemStack {
         return ItemBuilder.from(material)
@@ -40,8 +42,8 @@ data class Reagent(
             .build()
     }
 
-    fun calculateCraftingTimeInTicks(userReagent: UserReagent): Float {
-        val timeToDecrease = 1 - (upgrades.lastOrNull { userReagent.totalAmountCrafted >= it.amountToCraft }?.craftingTimeDecrease ?: 0F)
+    fun calculateCraftingTimeInTicks(amountCrafted: Long): Float {
+        val timeToDecrease = 1 - (upgrades.lastOrNull { amountCrafted >= it.amountToCraft }?.craftingTimeDecrease ?: 0F)
 
         return craftingTime * 20 * timeToDecrease
     }

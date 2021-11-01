@@ -1,9 +1,9 @@
 package me.senseiju.sennetidle
 
-import com.zaxxer.hikari.HikariDataSource
 import me.mattstudios.mf.base.CommandManager
 import me.senseiju.sennetidle.commands.SennetIdleCommand
-import me.senseiju.sennetidle.generator.GeneratorService
+import me.senseiju.sennetidle.crafting.CraftingService
+import me.senseiju.sennetidle.database.Database
 import me.senseiju.sennetidle.idlemobs.IdleMobService
 import me.senseiju.sennetidle.inventory.InventoryService
 import me.senseiju.sennetidle.reagents.ReagentService
@@ -14,9 +14,6 @@ import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.Style
 import org.bukkit.GameRule
 import org.bukkit.plugin.java.JavaPlugin
-import org.ktorm.database.Database
-import org.ktorm.support.mysql.MySqlDialect
-import java.lang.Exception
 
 val serviceProvider = ServiceProvider()
 
@@ -35,6 +32,7 @@ class SennetIdle : JavaPlugin() {
             registerCommands()
         } catch (ex: Exception) {
             slF4JLogger.error("Failed to load a service. Check stack trace for more information. SHUTTING DOWN")
+            ex.printStackTrace()
             server.shutdown()
             return
         }
@@ -61,8 +59,8 @@ class SennetIdle : JavaPlugin() {
     private fun enableServices() {
         serviceProvider.add(IdleMobService(this))
         serviceProvider.add(ReagentService(this))
+        serviceProvider.add(CraftingService(this))
         serviceProvider.add(UserService(this))
-        serviceProvider.add(GeneratorService(this))
         serviceProvider.add(InventoryService(this))
     }
 
@@ -76,17 +74,6 @@ class SennetIdle : JavaPlugin() {
      * Creates connection to database and relevant tables
      */
     private fun establishDatabase() {
-        val databaseConfig = ConfigFile(this, "database.yml", true)
-
-        val dataSource = HikariDataSource()
-        dataSource.jdbcUrl = databaseConfig.getString("url", "jdbc:mysql://localhost/sennetidle")
-        dataSource.username = databaseConfig.getString("username", "root")
-        dataSource.password = databaseConfig.getString("password", "toor")
-        dataSource.maximumPoolSize = 10
-        dataSource.addDataSourceProperty("cachePrepStmts", "true")
-        dataSource.addDataSourceProperty("prepStmtCacheSize", "250")
-        dataSource.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
-
-        database = Database.connect(dataSource, MySqlDialect())
+        database = Database(ConfigFile(this, "database.yml", true))
     }
 }

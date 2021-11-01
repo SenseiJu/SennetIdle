@@ -18,7 +18,7 @@ class UserService(plugin: SennetIdle) : Service() {
     init {
         plugin.registerEvents(UserConnectListener(this))
 
-        UserSaveTask(plugin)
+        UserSaveTask()
     }
 
     override fun onDisable() {

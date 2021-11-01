@@ -1,11 +1,11 @@
 package me.senseiju.sennetidle.users
 
-import me.senseiju.sennetidle.generator.GeneratorService
+import me.senseiju.sennetidle.idlemobs.IdleMobService
 import me.senseiju.sennetidle.serviceProvider
 import me.senseiju.sentils.extensions.message
-import me.senseiju.sentils.extensions.primitives.color
 import net.kyori.adventure.text.Component.text
-import net.kyori.adventure.text.format.NamedTextColor.*
+import net.kyori.adventure.text.format.NamedTextColor.BLUE
+import net.kyori.adventure.text.format.NamedTextColor.RED
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -14,7 +14,7 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 
-private val generatorService = serviceProvider.get<GeneratorService>()
+private val idleMobService = serviceProvider.get<IdleMobService>()
 
 class UserConnectListener(private val userService: UserService) : Listener {
     private val users = userService.users
@@ -24,8 +24,16 @@ class UserConnectListener(private val userService: UserService) : Listener {
         if (e.loginResult != AsyncPlayerPreLoginEvent.Result.ALLOWED) return
 
         if (!users.containsKey(e.uniqueId)) {
-            val user = userService.createUser(e.uniqueId)
-            generatorService.accelerateGenerators(user)
+            val user = try {
+                userService.createUser(e.uniqueId)
+            } catch (ex: Exception) {
+                e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, FAILED_TO_LOAD_DATA)
+                ex.printStackTrace()
+                return
+            }
+
+            idleMobService.accelerateWaveHandlers(user)
+            //generatorService.accelerateGenerators(user)
         }
     }
 

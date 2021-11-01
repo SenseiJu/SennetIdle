@@ -1,70 +1,76 @@
 package me.senseiju.sennetidle.users
 
+import me.senseiju.sennetidle.SennetIdle
+import me.senseiju.sennetidle.crafting.CraftingService
 import me.senseiju.sennetidle.database
-import me.senseiju.sennetidle.database.UserActiveGeneratorsTable
-import me.senseiju.sennetidle.database.UserIdleMobTable
-import me.senseiju.sennetidle.database.UserMetaDataTable
-import me.senseiju.sennetidle.database.UserReagentsTable
-import me.senseiju.sennetidle.generator.GeneratorService
+import me.senseiju.sennetidle.database.tables.UserActiveGeneratorsTable
+import me.senseiju.sennetidle.database.tables.UserIdleMobTable
+import me.senseiju.sennetidle.database.tables.UserMetaDataTable
+import me.senseiju.sennetidle.database.tables.UserReagentsTable
 import me.senseiju.sennetidle.reagents.ReagentService
 import me.senseiju.sennetidle.serviceProvider
-import org.ktorm.dsl.*
+import me.senseiju.sennetidle.utils.extensions.forEach
+import me.senseiju.sentils.runnables.newRunnable
+import org.bukkit.plugin.java.JavaPlugin
 
-private val generatorService = serviceProvider.get<GeneratorService>()
+private val plugin = JavaPlugin.getPlugin(SennetIdle::class.java)
+
 private val reagentService = serviceProvider.get<ReagentService>()
+private val craftingService = serviceProvider.get<CraftingService>()
 
 object UserLoadHandler {
 
     fun loadUser(user: User) {
         loadUserRegents(user)
         loadUserIdleMob(user)
-        loadUserActiveGenerators(user)
+        loadUserCraftingStations(user)
         loadUserMetaData(user)
     }
 
     private fun loadUserRegents(user: User) {
-        database.from(UserReagentsTable)
-            .select()
-            .where(UserReagentsTable.userUUID eq user.uuid.toString())
-            .forEach {
-                user.reagents[it[UserReagentsTable.reagentId]!!] =
-                    UserReagent(
-                        it[UserReagentsTable.reagentId]!!,
-                        it[UserReagentsTable.reagentTotalAmountCrafted]!!,
-                        it[UserReagentsTable.reagentAmount]!!
-                    )
-            }
+        val results = database.query(UserReagentsTable.SELECT_USER_REAGENTS_QUERY, user.uuid.toString())
+
+        results.forEach {
+            user.reagents[it.getString(UserReagentsTable.reagentId)] =
+                UserReagent(
+                    it.getString(UserReagentsTable.reagentId),
+                    it.getLong(UserReagentsTable.reagentTotalAmountCrafted),
+                    it.getLong(UserReagentsTable.reagentAmount)
+                )
+        }
 
         user.recalculatePassiveDPS()
     }
 
     private fun loadUserIdleMob(user: User) {
-        database.from(UserIdleMobTable)
-            .select()
-            .where(UserIdleMobTable.userUUID eq user.uuid.toString())
-            .forEach {
-                user.currentWave = it[UserIdleMobTable.currentWave]!!
-            }
+        val results = database.query(UserIdleMobTable.SELECT_USER_IDLE_MOB_QUERY, user.uuid.toString())
+
+        results.forEach {
+            user.currentWave = it.getInt(UserIdleMobTable.currentWave)
+        }
     }
 
-    private fun loadUserActiveGenerators(user: User) {
-        database.from(UserActiveGeneratorsTable)
-            .select()
-            .where(UserActiveGeneratorsTable.userUUID eq user.uuid.toString())
-            .forEach {
-                val generator = generatorService.generators[it[UserActiveGeneratorsTable.generatorId]] ?: return@forEach
-                val reagent = reagentService.reagents[it[UserActiveGeneratorsTable.reagentId]] ?: return@forEach
+    private fun loadUserCraftingStations(user: User) {
+        val results = database.query(UserActiveGeneratorsTable.SELECT_USER_CRAFTING_STATIONS, user.uuid.toString())
 
-                generator.startReagentCrafting(user, reagent)
-            }
+        results.forEach {
+            val craftingStationHandler = craftingService.getCraftingStationHandler(it.getString(UserActiveGeneratorsTable.generatorId)) ?: return@forEach
+            val reagent = reagentService.reagents[it.getString(UserActiveGeneratorsTable.reagentId)]
+
+            newRunnable {
+                val userCraftingStation = craftingStationHandler.addNewUserStation(user)
+                if (reagent != null) {
+                    userCraftingStation.setActiveCraftingReagent(craftingService.getNextCraftingReagent(reagent, user))
+                }
+            }.runTask(plugin)
+        }
     }
 
     private fun loadUserMetaData(user: User) {
-        database.from(UserMetaDataTable)
-            .select()
-            .where(UserMetaDataTable.userUUID eq user.uuid.toString())
-            .forEach {
-                user.lastSeen = it[UserMetaDataTable.lastSeenTime]!!
-            }
+        val results = database.query(UserMetaDataTable.SELECT_USER_META_DATA, user.uuid.toString())
+
+        results.forEach {
+            user.lastSeen = it.getLong(UserMetaDataTable.lastSeenTime)
+        }
     }
 }

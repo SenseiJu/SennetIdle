@@ -23,24 +23,22 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.21")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1-native-mt")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.21")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.31")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2-native-mt")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.31")
     implementation("com.github.SenseiJu:Sentils:3715b60a07")
     implementation("dev.triumphteam:triumph-gui:+")
     implementation("me.mattstudios.utils:matt-framework:1.4.6")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.ktorm:ktorm-core:3.4.1")
-    implementation("org.ktorm:ktorm-support-mysql:3.4.1")
 
     compileOnly("io.papermc.paper:paper-api:+")
-    compileOnly("com.comphenix.protocol:ProtocolLib:+")
+    compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
     compileOnly("me.clip:placeholderapi:+")
     compileOnly("com.gmail.filoghost.holographicdisplays:holographicdisplays-api:+")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 }
 
 tasks {

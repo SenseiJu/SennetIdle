@@ -7,6 +7,7 @@ import me.senseiju.sennetidle.SennetIdle
 import me.senseiju.sennetidle.users.User
 import me.senseiju.sentils.registerEvents
 import me.senseiju.sentils.runnables.CountdownRunnable
+import me.senseiju.sentils.runnables.newRunnable
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
@@ -16,14 +17,16 @@ import org.bukkit.NamespacedKey
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
 import org.bukkit.boss.KeyedBossBar
-import org.bukkit.entity.EntityType
-import org.bukkit.entity.LivingEntity
-import org.bukkit.entity.Player
+import org.bukkit.entity.*
 import org.bukkit.event.EventHandler
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
+import org.bukkit.event.entity.EntityCombustEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDeathEvent
+import org.bukkit.event.player.PlayerChangedWorldEvent
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.plugin.java.JavaPlugin
 import kotlin.math.roundToLong
 
@@ -51,7 +54,8 @@ class IdleMob(
         entity.isSilent = true
         entity.isCustomNameVisible = true
 
-        hideMobFromAllPlayers(user.getBukkitPlayer())
+        hideMobFromAllOtherPlayers()
+        hideEntitySpecificBossBar()
 
         plugin.registerEvents(this)
 
@@ -98,6 +102,10 @@ class IdleMob(
         }
     }
 
+    private fun hideEntitySpecificBossBar() {
+        (entity as? Boss)?.bossBar?.removeAll()
+    }
+
     private fun updateEntityCustomName() {
         entity.customName(
             text(
@@ -108,18 +116,29 @@ class IdleMob(
         )
     }
 
-    private fun hideMobFromAllPlayers(excludedPlayer: Player?) {
+    private fun hideMobFromAllOtherPlayers() {
         val packet = PacketContainer(PacketType.Play.Server.ENTITY_DESTROY)
         packet.intLists.writeSafely(0, mutableListOf(entity.entityId))
 
-        for (player in Bukkit.getOnlinePlayers().filter { player -> player.uniqueId != excludedPlayer?.uniqueId }) {
+        for (player in Bukkit.getOnlinePlayers().filter { player -> player.uniqueId != user.uuid }) {
             protocolManager.sendServerPacket(player, packet)
         }
     }
 
     @EventHandler
+    private fun onPlayerJoinEvent(e: PlayerJoinEvent) {
+        newRunnable {
+            hideMobFromAllOtherPlayers()
+        }.runTaskLater(plugin, 5)
+    }
+
+    @EventHandler
     private fun onEntityDamageByEntityEvent(e: EntityDamageByEntityEvent) {
-        if (e.entity.uniqueId != entity.uniqueId || e.damager !is Player || e.damager.uniqueId != user.uuid) return
+        if (e.entity.uniqueId != entity.uniqueId) return
+        if (e.damager !is Player || e.damager.uniqueId != user.uuid) {
+            e.isCancelled = true
+            return
+        }
 
         e.damage = Double.MIN_VALUE
 
@@ -133,5 +152,12 @@ class IdleMob(
         dispose()
 
         progressPlayer = true
+    }
+
+    @EventHandler
+    private fun onEntityCombustEvent(e: EntityCombustEvent) {
+        if (e.entity.uniqueId != entity.uniqueId) return
+
+        e.isCancelled = true
     }
 }

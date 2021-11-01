@@ -1,72 +1,53 @@
 package me.senseiju.sennetidle.users
 
+import me.senseiju.sennetidle.crafting.CraftingService
 import me.senseiju.sennetidle.database
-import me.senseiju.sennetidle.database.UserActiveGeneratorsTable
-import me.senseiju.sennetidle.database.UserIdleMobTable
-import me.senseiju.sennetidle.database.UserMetaDataTable
-import me.senseiju.sennetidle.database.UserReagentsTable
-import me.senseiju.sennetidle.generator.GeneratorService
+import me.senseiju.sennetidle.database.KeyedReplacements
+import me.senseiju.sennetidle.database.tables.UserActiveGeneratorsTable
+import me.senseiju.sennetidle.database.tables.UserIdleMobTable
+import me.senseiju.sennetidle.database.tables.UserMetaDataTable
+import me.senseiju.sennetidle.database.tables.UserReagentsTable
 import me.senseiju.sennetidle.serviceProvider
-import org.ktorm.support.mysql.insertOrUpdate
+import org.bukkit.Keyed
 
-private val generatorService = serviceProvider.get<GeneratorService>()
+private val craftingService = serviceProvider.get<CraftingService>()
 
 object UserSaveHandler {
-
     fun saveUser(user: User) {
         saveUserReagents(user)
         saveUserIdleMob(user)
-        saveUserActiveGenerators(user)
+        saveUserCraftingStations(user)
         saveUserMetaData(user)
     }
 
     private fun saveUserReagents(user: User) {
-        user.reagents.values.forEach { userRegent ->
-            database.insertOrUpdate(UserReagentsTable) {
-                set(it.userUUID, user.uuid.toString())
-                set(it.reagentId, userRegent.id)
-                set(it.reagentAmount, userRegent.amount)
-                set(it.reagentTotalAmountCrafted, userRegent.totalAmountCrafted)
-                onDuplicateKey {
-                    set(it.reagentAmount, userRegent.amount)
-                    set(it.reagentTotalAmountCrafted, userRegent.totalAmountCrafted)
-                }
-            }
+        val replacements = user.reagents.values.map {
+            KeyedReplacements(
+                arrayOf(user.uuid.toString(), it.id),
+                it.totalAmountCrafted, it.amount
+            )
         }
+
+        database.updateBatch(UserReagentsTable.UPDATE_USER_REAGENTS_QUERY, replacements)
     }
 
     private fun saveUserIdleMob(user: User) {
-        database.insertOrUpdate(UserIdleMobTable) {
-            set(it.userUUID, user.uuid.toString())
-            set(it.currentWave, user.currentWave)
-            onDuplicateKey {
-                set(it.currentWave, user.currentWave)
-            }
-        }
+        val replacements = KeyedReplacements(arrayOf(user.uuid.toString()), user.currentWave)
+
+        database.update(UserIdleMobTable.UPDATE_USER_IDLE_MOB_QUERY, replacements)
     }
 
-    private fun saveUserActiveGenerators(user: User) {
-        generatorService.generators.map {
-            it.key to it.value.activeUserCrafts[user]?.reagent?.id
-        }.forEach { (generatorId, reagentId) ->
-            database.insertOrUpdate(UserActiveGeneratorsTable) {
-                set(it.userUUID, user.uuid.toString())
-                set(it.generatorId, generatorId)
-                set(it.reagentId, reagentId)
-                onDuplicateKey {
-                    set(it.reagentId, reagentId)
-                }
-            }
+    private fun saveUserCraftingStations(user: User) {
+        val replacements = craftingService.getUserCraftingStations(user).map {
+            KeyedReplacements(arrayOf(user.uuid.toString(), it.key), it.value.getActiveReagent()?.id ?: "")
         }
+
+        database.updateBatch(UserActiveGeneratorsTable.UPDATE_USER_CRAFTING_STATIONS, replacements)
     }
 
     private fun saveUserMetaData(user: User) {
-        database.insertOrUpdate(UserMetaDataTable) {
-            set(it.userUUID, user.uuid.toString())
-            set(it.lastSeenTime, user.lastSeen)
-            onDuplicateKey {
-                set(it.lastSeenTime, user.lastSeen)
-            }
-        }
+        val replacements = KeyedReplacements(arrayOf(user.uuid.toString()), user.lastSeen)
+
+        database.update(UserMetaDataTable.UPDATE_USER_META_DATA, replacements)
     }
 }

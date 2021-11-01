@@ -2,8 +2,10 @@ package me.senseiju.sennetidle.idlemobs
 
 import me.senseiju.sennetidle.SennetIdle
 import me.senseiju.sennetidle.serviceProvider
+import me.senseiju.sennetidle.users.User
 import me.senseiju.sennetidle.users.UserService
 import me.senseiju.sentils.registerEvents
+import me.senseiju.sentils.runnables.newRunnable
 import me.senseiju.sentils.service.Service
 import me.senseiju.sentils.storage.ConfigFile
 import org.bukkit.Location
@@ -12,10 +14,12 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import java.util.*
+import java.util.concurrent.TimeUnit
+import kotlin.math.log
 
 private val userService = serviceProvider.get<UserService>()
 
-class IdleMobService(plugin: SennetIdle) : Service(), Listener {
+class IdleMobService(private val plugin: SennetIdle) : Service(), Listener {
     private val mobsConfig = ConfigFile(plugin, "mobs.yml", true)
     private var spawnLocation: Location
     private val bossWaveInterval: Int
@@ -37,6 +41,16 @@ class IdleMobService(plugin: SennetIdle) : Service(), Listener {
         userWaveHandlers.remove(uuid)?.dispose()
     }
 
+    fun accelerateWaveHandlers(user: User) {
+        val logOutPeriod = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - user.lastSeen)
+
+        newRunnable {
+            for (i in 0..logOutPeriod) {
+                userWaveHandlers[user.uuid]?.run()
+            }
+        }.runTaskAsynchronously(plugin)
+    }
+
     private fun createWaveHandler(player: Player) {
         val user = userService.getUser(player.uniqueId)
 
@@ -50,7 +64,7 @@ class IdleMobService(plugin: SennetIdle) : Service(), Listener {
     }
 
     override fun onDisable() {
-        userWaveHandlers.keys.forEach { disposeWaveHandler(it) }
+        userWaveHandlers.values.forEach { it.dispose() }
     }
 
     @EventHandler

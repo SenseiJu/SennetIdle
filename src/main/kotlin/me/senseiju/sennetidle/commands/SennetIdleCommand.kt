@@ -8,6 +8,7 @@ import me.mattstudios.mf.base.CommandBase
 import me.senseiju.sennetidle.PERMISSION_DEV
 import me.senseiju.sennetidle.PERMISSION_RELOAD
 import me.senseiju.sennetidle.SennetIdle
+import me.senseiju.sennetidle.crafting.CraftingService
 import me.senseiju.sennetidle.inventory.InventoryService
 import me.senseiju.sennetidle.reagents.ReagentService
 import me.senseiju.sennetidle.reagents.openReagentsGui
@@ -19,6 +20,7 @@ import org.bukkit.entity.Player
 private val userService = serviceProvider.get<UserService>()
 private val reagentService = serviceProvider.get<ReagentService>()
 private val inventoryService = serviceProvider.get<InventoryService>()
+private val craftingService = serviceProvider.get<CraftingService>()
 
 @Command("SennetIdle")
 class SennetIdleCommand(plugin: SennetIdle) : CommandBase() {
@@ -36,6 +38,23 @@ class SennetIdleCommand(plugin: SennetIdle) : CommandBase() {
         val user = userService.getUser(sender.uniqueId)
 
         sender.openReagentsGui(user)
+    }
+
+    @SubCommand("NewGen")
+    @Permission(PERMISSION_RELOAD)
+    fun newGen(sender: Player, id: String) {
+        if (craftingService.getCraftingStationHandler(id) != null) {
+            println("Station already exists")
+            return
+        }
+
+        val block = sender.rayTraceBlocks(3.0)?.hitBlock
+        if (block == null) {
+            println("Block not found")
+            return
+        }
+
+        craftingService.createNewCraftingStationsHandler(id, block.location)
     }
 
     @SubCommand("AddRegent")

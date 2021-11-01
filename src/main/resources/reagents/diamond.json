@@ -1,0 +1,16 @@
+{
+    "id": "diamond",
+    "material": "DIAMOND",
+    "displayName": "Diamond",
+    "craftingTime": 55,
+    "craftingReagents": [
+        {
+            "id": "diamond_fragment",
+            "amount": 35
+        },
+        {
+            "id": "iron",
+            "amount": 3
+        }
+    ]
+}

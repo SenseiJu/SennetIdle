@@ -21,15 +21,15 @@ fun Player.openReagentsGui(user: User) {
     val gui = Gui.scrolling(ScrollType.HORIZONTAL)
         .disableAllInteractions()
         .title(titleComponent)
-        .rows(3)
-        .pageSize(21)
+        .rows(5)
+        .pageSize(35)
         .create()
 
-    gui.filler.fillBetweenPoints(1, 1, 3, 1, fillerItem())
-    gui.filler.fillBetweenPoints(1, 9, 3, 9, fillerItem())
+    gui.filler.fillBetweenPoints(1, 1, 5, 1, fillerItem())
+    gui.filler.fillBetweenPoints(1, 9, 5, 9, fillerItem())
 
-    gui.setPreviousItem(2, 1)
-    gui.setNextItem(2, 9)
+    gui.setPreviousItem(3, 1)
+    gui.setNextItem(3, 9)
 
     reagentService.reagents.values.reversed().forEach {
         gui.addItem(GuiItem(it.displayItem(user.reagents[it.id]!!)))

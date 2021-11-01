@@ -8,6 +8,7 @@ import org.bukkit.NamespacedKey
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
@@ -15,6 +16,26 @@ import kotlin.math.pow
 
 private const val IDLE_MOB_BASE_HEALTH = 100.0
 private const val BOSS_IDLE_MOB_BASE_HEALTH = 250.0
+
+private val BOSS_ENTITY_TYPES =
+    setOf(
+        EntityType.IRON_GOLEM,
+        EntityType.GIANT,
+        EntityType.LLAMA
+    )
+private val REGULAR_ENTITY_TYPES =
+    setOf(
+        EntityType.SKELETON,
+        EntityType.BLAZE,
+        EntityType.ZOMBIE,
+        EntityType.ZOMBIFIED_PIGLIN,
+        EntityType.SPIDER,
+        EntityType.CREEPER,
+        EntityType.ENDERMAN,
+        EntityType.EVOKER,
+        EntityType.VINDICATOR,
+        EntityType.PILLAGER
+    )
 
 private val plugin = JavaPlugin.getPlugin(SennetIdle::class.java)
 
@@ -66,11 +87,11 @@ class WaveHandler(
         idleMob = if (user.currentWave % bossWaveInterval == 0) {
             user.getBukkitPlayer()?.setPlayerTime(18000, false)
 
-            IdleMob(EntityType.WITHER, spawnLocation, calculateMobHealth(BOSS_IDLE_MOB_BASE_HEALTH), user, bossWaveTimeLimit)
+            IdleMob(BOSS_ENTITY_TYPES.random(), spawnLocation, calculateMobHealth(BOSS_IDLE_MOB_BASE_HEALTH), user, bossWaveTimeLimit)
         } else {
             user.getBukkitPlayer()?.setPlayerTime(6000, false)
 
-            IdleMob(EntityType.SKELETON, spawnLocation, calculateMobHealth(IDLE_MOB_BASE_HEALTH), user)
+            IdleMob(REGULAR_ENTITY_TYPES.random(), spawnLocation, calculateMobHealth(IDLE_MOB_BASE_HEALTH), user)
         }
     }
 
