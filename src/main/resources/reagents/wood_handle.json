@@ -1,22 +1,10 @@
 {
     "id": "wood_handle",
-    "material": "STICK",
+    "weight": 300,
+    "material": "WOODEN_SWORD",
+    "modelData": 200,
     "displayName": "Wooden Handle",
-    "craftingTime": 3,
-    "craftingReagents": [
-        {
-            "id": "wood",
-            "amount": 2
-        }
-    ],
-    "upgrades": [
-        {
-            "amountToCraft": 20,
-            "craftingTimeDecrease": 0.15
-        },
-        {
-            "amountToCraft": 100,
-            "craftingTimeDecrease": 0.5
-        }
-    ]
+    "craftingReagents": {
+        "wood": 2
+    }
 }

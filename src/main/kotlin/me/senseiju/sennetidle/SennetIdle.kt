@@ -1,33 +1,30 @@
 package me.senseiju.sennetidle
 
 import me.mattstudios.mf.base.CommandManager
-import me.senseiju.sennetidle.commands.SennetIdleCommand
-import me.senseiju.sennetidle.crafting.CraftingService
-import me.senseiju.sennetidle.database.Database
-import me.senseiju.sennetidle.idlemobs.IdleMobService
-import me.senseiju.sennetidle.inventory.InventoryService
+import me.senseiju.sennetidle.idlemob.IdleMobService
 import me.senseiju.sennetidle.reagents.ReagentService
-import me.senseiju.sennetidle.users.UserService
+import me.senseiju.sennetidle.user.UserService
 import me.senseiju.sentils.service.ServiceProvider
 import me.senseiju.sentils.storage.ConfigFile
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.Style
+import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.GameRule
 import org.bukkit.plugin.java.JavaPlugin
 
+val mm = MiniMessage.miniMessage()
+val plugin = JavaPlugin.getPlugin(SennetIdle::class.java)
 val serviceProvider = ServiceProvider()
 
-lateinit var database: Database
-    private set
-
 class SennetIdle : JavaPlugin() {
+    lateinit var config: ConfigFile
     lateinit var commandManager: CommandManager
 
     override fun onEnable() {
+        config = ConfigFile(this, "config.yml", true)
         commandManager = CommandManager(this)
 
         try {
-            establishDatabase()
             enableServices()
             registerCommands()
         } catch (ex: Exception) {
@@ -44,8 +41,6 @@ class SennetIdle : JavaPlugin() {
             it.setGameRule(GameRule.DO_MOB_SPAWNING, false)
             it.setGameRule(GameRule.DO_MOB_LOOT, false)
         }
-
-        SennetIdlePlaceholders().register()
     }
 
     override fun onDisable() {
@@ -57,23 +52,14 @@ class SennetIdle : JavaPlugin() {
     }
 
     private fun enableServices() {
-        serviceProvider.add(IdleMobService(this))
-        serviceProvider.add(ReagentService(this))
-        serviceProvider.add(CraftingService(this))
-        serviceProvider.add(UserService(this))
-        serviceProvider.add(InventoryService(this))
+        serviceProvider.add(UserService())
+        serviceProvider.add(ReagentService())
+        serviceProvider.add(IdleMobService())
     }
 
     private fun registerCommands() {
         commandManager.register(
-            SennetIdleCommand(this)
-        )
-    }
 
-    /**
-     * Creates connection to database and relevant tables
-     */
-    private fun establishDatabase() {
-        database = Database(ConfigFile(this, "database.yml", true))
+        )
     }
 }

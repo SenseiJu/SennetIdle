@@ -1,22 +1,10 @@
 {
     "id": "wood_blade",
+    "weight": 200,
     "material": "WOODEN_SWORD",
+    "modelData": 100,
     "displayName": "Wooden Blade",
-    "craftingTime": 5,
-    "craftingReagents": [
-        {
-            "id": "wood",
-            "amount": 5
-        }
-    ],
-    "upgrades": [
-        {
-            "amountToCraft": 20,
-            "craftingTimeDecrease": 0.15
-        },
-        {
-            "amountToCraft": 100,
-            "craftingTimeDecrease": 0.5
-        }
-    ]
+    "craftingReagents": {
+        "wood": 5
+    }
 }

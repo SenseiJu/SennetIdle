@@ -1,0 +1,26 @@
+Gameplay:
+    - Idle mobs will drop a random amount of raw resources and some currency (Raw resources being wood, stone, ore types etc.)
+    - Crafting station will be used to quick craft other items which will produce DPS
+    - Upgrade progression will be something similar to wood -> sticks & sword blade -> wooden sword (DPS: 10)
+    - Custom items possible with resource pack models/textures
+    - Raw resources will unlock after X amount of waves
+    - Offline timer
+
+Each player will have a sword used to attack the idle mob, it will start at base 15% of the passive DPS
+
+Player Enchants/Upgrades:
+    - Sharpness: Increase damage by 1% of passive DPS (Max: 30)
+    - Critical: Chance to do double damage on the idle mob (Max: 25)
+    - Cavalry: Chance to attack other peoples idle mob (Max: 25)
+    - Clicker: Decrease the hit delay [NoDamageTicks] (Max: Undecided)
+
+Idle Upgrade Ideas:
+    - Miniboss: Chance to upgrade the regular idle mob to a boss
+    - Fortune: Increase currency drop value
+    - Extraction: Increase the max amount of reagent drops
+    - Explosive: Chance to kill the next idle mob instantly [Only works for regular mobs]
+
+
+SOME SORT OF OFFLINE TIME UPGRADES SO PEOPLE CAN GO BED AND PROGRESS (LIMITED)
+
+

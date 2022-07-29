@@ -1,12 +1,9 @@
 {
     "id": "iron",
+    "weight": 900,
     "material": "IRON_INGOT",
     "displayName": "Iron",
-    "craftingTime": 30,
-    "craftingReagents": [
-        {
-            "id": "iron_ore",
-            "amount": 3
-        }
-    ]
+    "mobDropUnlockWave": 30,
+    "mobDropMinAmount": 2,
+    "mobDropMaxAmount": 5
 }

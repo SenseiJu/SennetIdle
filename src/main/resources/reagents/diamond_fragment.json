@@ -1,7 +1,0 @@
-{
-    "id": "diamond_fragment",
-    "material": "DIAMOND_ORE",
-    "displayName": "Diamond Fragment",
-    "mobDropUnlockWave": 60,
-    "mobDropBaseAmount": 6
-}

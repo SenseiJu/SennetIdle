@@ -1,21 +1,12 @@
 {
     "id": "diamond_sword",
+    "weight": 1500,
     "material": "DIAMOND_SWORD",
     "displayName": "Diamond Sword",
-    "craftingTime": 360,
-    "damagePerSecond": 1700,
-    "craftingReagents": [
-        {
-            "id": "iron_sword",
-            "amount": 1
-        },
-        {
-            "id": "wood_handle",
-            "amount": 5
-        },
-        {
-            "id": "diamond_blade",
-            "amount": 1
-        }
-    ]
+    "damagePerSecond": 4700,
+    "craftingReagents": {
+        "iron_sword": 9,
+        "wood_handle": 5,
+        "diamond_blade": 1
+    }
 }

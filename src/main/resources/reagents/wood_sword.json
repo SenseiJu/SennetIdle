@@ -1,27 +1,11 @@
 {
     "id": "wood_sword",
+    "weight": 400,
     "material": "WOODEN_SWORD",
     "displayName": "Wooden Sword",
-    "craftingTime": 10,
     "damagePerSecond": 1,
-    "craftingReagents": [
-        {
-            "id": "wood_handle",
-            "amount": 1
-        },
-        {
-            "id": "wood_blade",
-            "amount": 1
-        }
-    ],
-    "upgrades": [
-        {
-            "amountToCraft": 10,
-            "craftingTimeDecrease": 0.15
-        },
-        {
-            "amountToCraft": 100,
-            "craftingTimeDecrease": 0.4
-        }
-    ]
+    "craftingReagents": {
+        "wood_handle": 1,
+        "wood_blade": 1
+    }
 }

@@ -1,20 +1,20 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    kotlin("jvm") version "+"
-    kotlin("plugin.serialization") version "+"
+    kotlin("jvm") version "1.7.10"
+    kotlin("plugin.serialization") version "1.7.10"
 
-    id("com.github.johnrengelman.shadow") version "+"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "me.senseiju"
-version = "0.0.1"
+version = "0.2.0"
 
 repositories {
     mavenCentral()
 
     maven("https://jitpack.io")
-    maven("https://papermc.io/repo/repository/maven-public/")
+    maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.mattstudios.me/artifactory/public/")
     maven("https://repo.panda-lang.org/releases")
     maven("https://repo.dmulloy2.net/repository/public/")
@@ -23,22 +23,23 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.31")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2-native-mt")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.31")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.10")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.10")
     implementation("com.github.SenseiJu:Sentils:3715b60a07")
-    implementation("dev.triumphteam:triumph-gui:+")
+    implementation("dev.triumphteam:triumph-gui:3.1.2")
     implementation("me.mattstudios.utils:matt-framework:1.4.6")
-    implementation("com.zaxxer:HikariCP:5.0.0")
+    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("net.kyori:adventure-text-minimessage:4.11.0")
 
-    compileOnly("io.papermc.paper:paper-api:+")
+    compileOnly("io.papermc.paper:paper-api:1.19-R0.1-SNAPSHOT")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
-    compileOnly("me.clip:placeholderapi:+")
-    compileOnly("com.gmail.filoghost.holographicdisplays:holographicdisplays-api:+")
+    compileOnly("me.clip:placeholderapi:2.11.2")
+    compileOnly("com.github.decentsoftware-eu:decentholograms:2.5.2")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
 }
 
 tasks {
@@ -54,7 +55,7 @@ tasks {
         relocate("me.mattstudios.mf", "me.senseiju.shaded.cmd")
 
         minimize {
-            exclude(dependency("org.jetbrains.kotlin:kotlin-reflect:.*"))
+            //exclude(dependency("org.jetbrains.kotlin:kotlin-reflect:.*"))
         }
     }
 

@@ -4,7 +4,7 @@ version: ${version}
 api-version: 1.17
 depend:
   - ProtocolLib
-  - HolographicDisplays
+  - DecentHolograms
   - PlaceholderAPI
 
 author: SenseiJu

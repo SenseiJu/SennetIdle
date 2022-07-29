@@ -1,12 +1,9 @@
 {
     "id": "diamond_blade",
+    "weight": 1400,
     "material": "DIAMOND_SWORD",
     "displayName": "Diamond Blade",
-    "craftingTime": 200,
-    "craftingReagents": [
-        {
-            "id": "diamond",
-            "amount": 8
-        }
-    ]
+    "craftingReagents": {
+        "diamond": 8
+    }
 }

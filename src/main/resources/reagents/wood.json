@@ -1,7 +1,7 @@
 {
     "id": "wood",
+    "weight": 100,
     "material": "OAK_PLANKS",
-    "displayName": "Wood",
-    "mobDropUnlockWave": 3,
-    "mobDropBaseAmount": 12
+    "displayName": "Wooden Plank",
+    "mobDropUnlockWave": 3
 }

@@ -1,0 +1,8 @@
+idle-mob:
+  spawn-location: "world:100:100:100:0:0"
+  player-invisibility-radius: 5.0
+  hologram-locations:
+    - "world:100:103.5:106:0:0"
+    - "world:106:103.5:100:0:0"
+    - "world:94:103.5:100:0:0"
+    - "world:100:103.5:94:0:0"

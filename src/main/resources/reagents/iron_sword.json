@@ -1,21 +1,12 @@
 {
     "id": "iron_sword",
+    "weight": 1100,
     "material": "IRON_SWORD",
     "displayName": "Iron Sword",
-    "craftingTime": 80,
-    "damagePerSecond": 70,
-    "craftingReagents": [
-        {
-            "id": "stone_sword",
-            "amount": 1
-        },
-        {
-            "id": "wood_handle",
-            "amount": 3
-        },
-        {
-            "id": "iron_blade",
-            "amount": 1
-        }
-    ]
+    "damagePerSecond": 230,
+    "craftingReagents": {
+        "stone_sword": 9,
+        "wood_handle": 3,
+        "iron_blade": 1
+    }
 }

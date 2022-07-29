@@ -1,21 +1,12 @@
 {
     "id": "stone_sword",
+    "weight": 700,
     "material": "STONE_SWORD",
     "displayName": "Stone Sword",
-    "craftingTime": 30,
-    "damagePerSecond": 6,
-    "craftingReagents": [
-        {
-            "id": "wood_sword",
-            "amount": 1
-        },
-        {
-            "id": "wood_handle",
-            "amount": 2
-        },
-        {
-            "id": "stone_blade",
-            "amount": 1
-        }
-    ]
+    "damagePerSecond": 15,
+    "craftingReagents": {
+        "wood_sword": 9,
+        "wood_handle": 2,
+        "stone_blade": 1
+    }
 }

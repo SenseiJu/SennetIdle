@@ -1,16 +1,9 @@
 {
     "id": "diamond",
+    "weight": 1300,
     "material": "DIAMOND",
     "displayName": "Diamond",
-    "craftingTime": 55,
-    "craftingReagents": [
-        {
-            "id": "diamond_fragment",
-            "amount": 35
-        },
-        {
-            "id": "iron",
-            "amount": 3
-        }
-    ]
+    "mobDropUnlockWave": 60,
+    "mobDropMinAmount": 2,
+    "mobDropMaxAmount": 5
 }
