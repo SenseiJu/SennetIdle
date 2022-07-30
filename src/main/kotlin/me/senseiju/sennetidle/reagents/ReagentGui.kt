@@ -30,11 +30,10 @@ fun Player.openReagentGui() {
 
         val user = userService.getUser(this.uniqueId)
 
-        user.reagents.forEach { (reagent, amount) ->
-            gui.addItem(createReagentGuiItem(user, reagent, amount))
+        Reagent.values().forEach { reagent ->
+            gui.addItem(createReagentGuiItem(user, reagent, user.reagents.getOrPut(reagent) { 0 }))
         }
 
-        //gui.openSync(this)
         gui.openUpdating(2L, 2L, this)
     }
 }
@@ -56,21 +55,6 @@ private fun createReagentGuiItem(user: User, reagent: Reagent, amount: Int): Upd
     }
 
     return item
-
-    /*
-    val item = ItemBuilder.from(reagent.toItemStack())
-        .lore(createLore(user, reagent, amount))
-
-    return item.asGuiItem { e ->
-        if (reagent.isCraftable() && user.canCraftReagent(reagent, 1)) {
-            user.craftReagent(reagent, 1)
-
-            e.currentItem?.editMeta { meta ->
-                meta.lore(createLore(user, reagent, user.reagents.getOrDefault(reagent, 0)))
-            }
-        }
-    }
-     */
 }
 
 private fun createLore(user: User, reagent: Reagent, amount: Int): List<Component> {

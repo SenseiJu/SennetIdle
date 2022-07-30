@@ -42,7 +42,7 @@ class User(
     }
 
     fun hasReagent(reagent: Reagent, amount: Int): Boolean {
-        return reagents.getOrDefault(reagent, 0) >= amount
+        return reagents.getOrPut(reagent) { 0 } >= amount
     }
 
     fun canCraftReagent(reagent: Reagent, amountToCraft: Int): Boolean {

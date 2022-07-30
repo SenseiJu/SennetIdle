@@ -3,16 +3,15 @@ package me.senseiju.sennetidle
 import me.mattstudios.mf.base.CommandManager
 import me.senseiju.sennetidle.idlemob.IdleMobService
 import me.senseiju.sennetidle.reagents.ReagentService
+import me.senseiju.sennetidle.storage.StorageService
 import me.senseiju.sennetidle.user.UserService
 import me.senseiju.sentils.service.ServiceProvider
 import me.senseiju.sentils.storage.ConfigFile
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.Style
-import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.GameRule
 import org.bukkit.plugin.java.JavaPlugin
 
-val mm = MiniMessage.miniMessage()
 val plugin = JavaPlugin.getPlugin(SennetIdle::class.java)
 val serviceProvider = ServiceProvider()
 
@@ -52,6 +51,7 @@ class SennetIdle : JavaPlugin() {
     }
 
     private fun enableServices() {
+        serviceProvider.add(StorageService())
         serviceProvider.add(UserService())
         serviceProvider.add(ReagentService())
         serviceProvider.add(IdleMobService())

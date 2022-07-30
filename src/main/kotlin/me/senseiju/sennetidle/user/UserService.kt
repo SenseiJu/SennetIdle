@@ -11,6 +11,10 @@ class UserService : Service() {
         userPlaceholderExpansion.register()
     }
 
+    override fun onDisable() {
+        userCache.saveUsers()
+    }
+
     fun getUser(playerId: UUID): User {
         return userCache.users[playerId]!!
     }

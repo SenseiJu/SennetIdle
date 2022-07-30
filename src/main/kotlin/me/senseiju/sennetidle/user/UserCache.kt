@@ -1,16 +1,27 @@
 package me.senseiju.sennetidle.user
 
 import me.senseiju.sennetidle.plugin
+import me.senseiju.sennetidle.serviceProvider
+import me.senseiju.sennetidle.storage.StorageService
+import me.senseiju.sennetidle.utils.extensions.component
 import me.senseiju.sentils.registerEvents
 import me.senseiju.sentils.runnables.newRunnable
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerKickEvent
 import java.util.*
+import kotlin.system.measureTimeMillis
 
-private const val EXECUTE_INTERVAL_IN_TICKS = 120 * 20L
+private const val EXECUTE_INTERVAL_IN_TICKS = 20 * 20L
+
+private val DATA_FAILED_TO_LOAD_COMPONENT = "<red><b>Failed to load user data, try reconnecting (If this issue persists, contact an Admin)".component()
+
+private val storageService = serviceProvider.get<StorageService>()
+private val logger = plugin.slF4JLogger
 
 class UserCache : Listener {
     val users = hashMapOf<UUID, User>()
@@ -23,18 +34,21 @@ class UserCache : Listener {
         runnable.runTaskTimerAsynchronously(plugin, EXECUTE_INTERVAL_IN_TICKS, EXECUTE_INTERVAL_IN_TICKS)
     }
 
+    @Synchronized
     fun saveUsers() {
-        // Add saving
+        logger.info("Saving user data and cleansing cache...")
 
-        users.keys.filterNot { playerId ->
-            Bukkit.getOfflinePlayer(playerId).isOnline
-        }.forEach {
-            users.remove(it)
+        val elapsedTime = measureTimeMillis {
+            users.toMap().forEach { (playerId, user) ->
+                storageService.saveUser(user)
+
+                if (!Bukkit.getOfflinePlayer(playerId).isOnline) {
+                    users.remove(playerId)
+                }
+            }
         }
-    }
 
-    private fun loadUser(playerId: UUID): User {
-        return User.new(playerId)
+        logger.info("Save complete (Took: ${elapsedTime}ms)")
     }
 
     @EventHandler
@@ -43,14 +57,15 @@ class UserCache : Listener {
             return
         }
 
-        users[e.uniqueId] = loadUser(e.uniqueId)
+        users[e.uniqueId] = storageService.loadUser(e.uniqueId)
     }
 
-    // KEEP FOR NOW :)
-    @EventHandler
-    private fun onNasrinnJoinEvent(e: PlayerJoinEvent) {
-        if (e.player.uniqueId == UUID.fromString("2852170a-8a30-4cfb-a276-70a8fb5df090")) {
-            e.player.sendMessage("Your FAT LOL")
+    @EventHandler(priority = EventPriority.LOWEST)
+    private fun onPlayerJoinEvent(e: PlayerJoinEvent) {
+        if (users.contains(e.player.uniqueId)) {
+            return
         }
+
+        e.player.kick(DATA_FAILED_TO_LOAD_COMPONENT, PlayerKickEvent.Cause.PLUGIN)
     }
 }

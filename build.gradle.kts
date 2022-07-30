@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "me.senseiju"
-version = "0.2.0"
+version = "0.2.2"
 
 repositories {
     mavenCentral()
@@ -27,7 +27,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.10")
-    implementation("com.github.SenseiJu:Sentils:3715b60a07")
+    implementation("com.github.SenseiJu:Sentils:-SNAPSHOT")
     implementation("dev.triumphteam:triumph-gui:3.1.2")
     implementation("me.mattstudios.utils:matt-framework:1.4.6")
     implementation("com.zaxxer:HikariCP:5.0.1")
