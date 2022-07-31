@@ -19,7 +19,7 @@ import kotlin.math.roundToLong
 
 const val BOSS_WAVE_INTERVAL = 10
 private const val BOSS_IDLE_MOB_BASE_HEALTH = 250.0
-private val BOSS_ENTITY_TYPES =
+val BOSS_ENTITY_TYPES =
     setOf(
         EntityType.IRON_GOLEM,
         EntityType.WARDEN,
@@ -27,7 +27,7 @@ private val BOSS_ENTITY_TYPES =
     )
 
 private const val IDLE_MOB_BASE_HEALTH = 100.0
-private val REGULAR_ENTITY_TYPES =
+val REGULAR_ENTITY_TYPES =
     setOf(
         EntityType.SKELETON,
         EntityType.BLAZE,
@@ -88,6 +88,13 @@ class IdleMobSpawnHandler : Listener {
         }.let {
             if (it.isEmpty()) {
                 spawnNewIdleMob(userService.getUser(e.player.uniqueId))
+            }
+        }
+
+        idleMobs.values.forEach {
+            if (it.playerId != e.player.uniqueId) {
+                @Suppress("UnstableApiUsage")
+                e.player.hideEntity(plugin, it.entity)
             }
         }
     }

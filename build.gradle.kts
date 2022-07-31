@@ -34,7 +34,7 @@ dependencies {
     implementation("net.kyori:adventure-text-minimessage:4.11.0")
 
     compileOnly("io.papermc.paper:paper-api:1.19-R0.1-SNAPSHOT")
-    compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
+    compileOnly("com.comphenix.protocol:ProtocolLib:4.8.0")
     compileOnly("me.clip:placeholderapi:2.11.2")
     compileOnly("com.github.decentsoftware-eu:decentholograms:2.5.2")
 

@@ -1,7 +1,6 @@
 package me.senseiju.sennetidle.idlemob
 
 import com.comphenix.protocol.PacketType
-import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.events.PacketContainer
 import me.senseiju.sennetidle.plugin
 import me.senseiju.sennetidle.reagents.Reagent
@@ -23,8 +22,6 @@ import org.bukkit.event.entity.EntityDeathEvent
 import java.util.*
 import kotlin.math.roundToLong
 
-private val protocolManager = ProtocolLibrary.getProtocolManager()
-
 open class IdleMob(
     protected val user: User,
     location: Location,
@@ -37,7 +34,7 @@ open class IdleMob(
     private val healthBarKey = NamespacedKey(plugin, "idle-mob-health-${playerId.toString().lowercase()}")
     private val healthBar = plugin.server.createBossBar(healthBarKey, "Health", BarColor.RED, BarStyle.SOLID)
 
-    protected val entity = location.world.spawnEntity(location, entityType) as LivingEntity
+    val entity = location.world.spawnEntity(location.clone().add(0.0, 10.0, 0.0), entityType) as LivingEntity
 
     private val packet = PacketContainer(PacketType.Play.Server.ENTITY_DESTROY)
 
@@ -66,17 +63,25 @@ open class IdleMob(
             }
 
             updateEntityHealthVisuals()
-            sendRemoveEntityFromPlayerViewPacket()
+        }
+        runnables.addRepeatingRunnable(1, 1) {
+            entity.teleport(location)
         }
         runnables.start(plugin, false)
 
+        Bukkit.getOnlinePlayers()
+            .filterNot { it.uniqueId == playerId }
+            .forEach {
+                @Suppress("UnstableApiUsage") it.hideEntity(plugin, entity)
+            }
+
         user.withPlayer {
             it.setPlayerTime(6000, false)
+            @Suppress("UnstableApiUsage") it.showEntity(plugin, entity)
 
             healthBar.addPlayer(it)
         }
 
-        sendRemoveEntityFromPlayerViewPacket()
         updateEntityHealthVisuals()
     }
 
@@ -99,12 +104,6 @@ open class IdleMob(
 
     private fun updateEntityHealthVisuals() {
         healthBar.progress = currentHealth.coerceAtLeast(0).toDouble() / maxHealth
-    }
-
-    private fun sendRemoveEntityFromPlayerViewPacket() {
-        for (player in Bukkit.getOnlinePlayers().filter { player -> player.uniqueId != playerId }) {
-            protocolManager.sendServerPacket(player, packet)
-        }
     }
 
     fun onEntityDamageByEntityEvent(e: EntityDamageByEntityEvent) {
