@@ -4,6 +4,7 @@ import me.mattstudios.mf.base.CommandManager
 import me.senseiju.sennetidle.idlemob.IdleMobService
 import me.senseiju.sennetidle.reagents.ReagentService
 import me.senseiju.sennetidle.storage.StorageService
+import me.senseiju.sennetidle.upgrades.UpgradeService
 import me.senseiju.sennetidle.user.UserService
 import me.senseiju.sentils.service.ServiceProvider
 import me.senseiju.sentils.storage.ConfigFile
@@ -55,6 +56,7 @@ class SennetIdle : JavaPlugin() {
         serviceProvider.add(UserService())
         serviceProvider.add(ReagentService())
         serviceProvider.add(IdleMobService())
+        serviceProvider.add(UpgradeService())
     }
 
     private fun registerCommands() {

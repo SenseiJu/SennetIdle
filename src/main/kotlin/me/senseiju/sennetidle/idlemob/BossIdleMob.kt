@@ -2,11 +2,9 @@ package me.senseiju.sennetidle.idlemob
 
 import me.senseiju.sennetidle.plugin
 import me.senseiju.sennetidle.user.User
+import me.senseiju.sennetidle.utils.extensions.component
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
-import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.Title
 import net.kyori.adventure.util.Ticks
 import org.bukkit.Location
@@ -14,11 +12,10 @@ import org.bukkit.NamespacedKey
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
 import org.bukkit.entity.EntityType
-import org.bukkit.event.entity.EntityDeathEvent
 
 private val BOSS_SPAWN_TITLE = Title.title(
-    Component.text("|| BOSS WAVE ||", NamedTextColor.RED, TextDecoration.BOLD),
-    Component.text("Kill the boss before the time runs out!", NamedTextColor.GRAY),
+    "<red><b><obf>||</obf> BOSS WAVE <obf>||</obf>".component(),
+    "<grey>Kill the boss before the time runs out!".component(),
     Title.Times.times(Ticks.duration(10), Ticks.duration(40), Ticks.duration(20))
 )
 
@@ -26,28 +23,32 @@ private val BOSS_KILLED_SUCCESS_SOUND = Sound.sound(Key.key("ui.toast.challenge_
 
 class BossIdleMob(
     user: User,
-    location: Location,
+    private val location: Location,
     entityType: EntityType,
     maxHealth: Long
-) : IdleMob(user, location, entityType, maxHealth) {
-    private var wasKilledByPlayer = false
+) : AbstractIdleMob(user, location, entityType, maxHealth) {
 
-    private val timerBarKey = NamespacedKey(plugin, "idle-mob-timer-${playerId.toString().lowercase()}")
+    private val timerBarKey = NamespacedKey(plugin, "idle-mob-timer-${getPlayerUUID().toString().lowercase()}")
     private val timerBar = plugin.server.createBossBar(timerBarKey, "Time Remaining", BarColor.PINK, BarStyle.SOLID)
 
     private val maxTime = 10L
     private var timeRemaining = maxTime
 
     init {
+        user.idleMob = this
+
         timerBar.removeAll()
         timerBar.progress = timeRemaining / maxTime.toDouble()
 
         runnables.addRepeatingRunnable(20) {
             timerBar.progress = --timeRemaining / maxTime.toDouble()
+            currentHealth -= (user.dps + user.bossDps)
 
-            if (timeRemaining <= 0) {
+            if (currentHealth <= 0 || timeRemaining <= 0) {
                 entity.health = 0.0
             }
+
+            updateEntityHealthVisuals()
         }
 
         user.withPlayer {
@@ -58,30 +59,24 @@ class BossIdleMob(
         }
     }
 
-    override fun dispose() {
-        super.dispose()
+    override fun onHit() {
 
-        user.withPlayer {
-
-        }
-
-        timerBar.removeAll()
-        plugin.server.removeBossBar(timerBarKey)
     }
 
-    override fun onEntityDeathEvent(e: EntityDeathEvent) {
-        if (currentHealth < 0) {
-            wasKilledByPlayer = true
+    override fun onKill(success: Boolean) {
+        if (success) {
             user.withPlayer {
                 it.playSound(BOSS_KILLED_SUCCESS_SOUND)
             }
-
-            super.onEntityDeathEvent(e)
-
-            return
+        } else {
+            user.currentWave = (user.currentWave - (BOSS_WAVE_INTERVAL - 1)).coerceAtLeast(1)
         }
-        user.currentWave = (user.currentWave - (BOSS_WAVE_INTERVAL - 1)).coerceAtLeast(1)
+    }
 
-        dispose()
+    override fun dispose() {
+        timerBar.removeAll()
+        plugin.server.removeBossBar(timerBarKey)
+
+        super.dispose()
     }
 }

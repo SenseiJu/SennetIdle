@@ -1,64 +1,24 @@
 package me.senseiju.sennetidle.reagents
 
+import me.mattstudios.mf.base.components.TypeResult
 import me.senseiju.sennetidle.plugin
 import me.senseiju.sentils.service.Service
+import net.citizensnpcs.api.CitizensAPI
+import net.citizensnpcs.api.trait.TraitInfo
 
 class ReagentService : Service() {
 
     init {
-        plugin.commandManager.register(ReagentCommand())
-    }
-
-    /*
-    private fun copyReagentsFromJar() {
-        val jar = JarFile(plugin.javaClass.protectionDomain.codeSource.location.toURI().path)
-        val entries = jar.entries()
-
-        while (entries.hasMoreElements()) {
-            val entry = entries.nextElement()
-
-            if (!entry.name.startsWith("reagents/")) {
-                continue
-            }
-
-            if (!File(plugin.dataFolder, entry.name).exists()) {
-                plugin.saveResource(entry.name, false)
+        plugin.commandManager.parameterHandler.register(Reagent::class.java) { argument ->
+            return@register try {
+                TypeResult(Reagent.valueOf(argument.toString().uppercase()), argument)
+            } catch (ex: IllegalArgumentException) {
+                TypeResult(argument)
             }
         }
+
+        plugin.commandManager.register(ReagentCommand())
+
+        CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(ReagentTrait::class.java))
     }
-
-     */
-
-    /*
-    private fun loadReagents() {
-        val newReagents = HashMap<String, ReagentDef>()
-
-        val json = Json { ignoreUnknownKeys = true }
-
-        File(plugin.dataFolder, "reagents/")
-            .walk()
-            .filter { it.isFile }
-            .forEach { reagentFile ->
-                val reagentJson = reagentFile.readText()
-
-                val reagentDef = try {
-                    json.decodeFromString<ReagentDef>(reagentJson)
-                } catch (ex: Exception) {
-                    logger.error("Reagent failed to decode. File: ${reagentFile.name}")
-                    ex.printStackTrace()
-                    return@forEach
-                }
-
-                if (newReagents.containsKey(reagentDef.id)) {
-                    logger.error("Reagent failed to load as it already exists. ReagentId: ${reagentDef.id}, File: ${reagentFile.name}")
-                    return@forEach
-                }
-
-                newReagents[reagentDef.id] = reagentDef
-            }
-
-        reagents = newReagents
-    }
-
-     */
 }

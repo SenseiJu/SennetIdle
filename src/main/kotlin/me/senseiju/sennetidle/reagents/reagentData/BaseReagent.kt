@@ -1,11 +1,15 @@
 package me.senseiju.sennetidle.reagents.reagentData
 
 import me.senseiju.sennetidle.reagents.Reagent
+import me.senseiju.sennetidle.utils.ModelItem
+import me.senseiju.sennetidle.utils.randomChance
 import java.util.*
 
 private val random = Random()
 
-interface BaseReagent
+interface BaseReagent : ModelItem {
+    val promotionUnlock: Int
+}
 
 interface DroppableReagent : BaseReagent {
     val waveUnlock: Int
@@ -14,7 +18,7 @@ interface DroppableReagent : BaseReagent {
     val maxAmount: Int
 
     fun shouldDrop(): Boolean {
-        return random.nextFloat(0F, 100F) <= dropChance
+        return randomChance(dropChance)
     }
 
     fun randomAmount(): Int {
@@ -24,8 +28,10 @@ interface DroppableReagent : BaseReagent {
 
 interface CraftableReagent : BaseReagent {
     val reagentRequirements: Map<Reagent, Int>
+    val amountPerCraft: Int
 }
 
 interface DamagingReagent : BaseReagent {
     val damagePerSecond: Int
+    val bossOnly: Boolean
 }

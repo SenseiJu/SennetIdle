@@ -1,9 +1,0 @@
-{
-    "id": "iron_blade",
-    "weight": 1000,
-    "material": "IRON_SWORD",
-    "displayName": "Iron Blade",
-    "craftingReagents": {
-        "iron": 5
-    }
-}

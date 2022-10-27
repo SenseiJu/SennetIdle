@@ -6,6 +6,7 @@ import dev.triumphteam.gui.guis.BaseGui
 import dev.triumphteam.gui.guis.GuiItem
 import dev.triumphteam.gui.guis.PaginatedGui
 import me.senseiju.sennetidle.plugin
+import me.senseiju.sennetidle.utils.extensions.component
 import me.senseiju.sentils.runnables.newRunnable
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -15,17 +16,19 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.ItemStack
 
+val EMPTY_COMPONENT = "".component()
+val GREEN_TICK_COMPONENT = "<green><b>[✔]".component()
+val RED_CROSS_COMPONENT = "<red><b>[❌]".component()
+
 fun BaseGui.openSync(player: HumanEntity) {
     newRunnable { open(player) }.runTask(plugin)
 }
 
-fun fillerItem(): GuiItem {
-    return ItemBuilder.from(Material.BLACK_STAINED_GLASS_PANE)
-        .name(Component.text(" "))
+val FILLER_ITEM = ItemBuilder.from(Material.BLACK_STAINED_GLASS_PANE)
+        .name("".component())
         .asGuiItem { e ->
             e.isCancelled = true
         }
-}
 
 private val NEXT = Component.text("Next »", NamedTextColor.YELLOW)
 fun PaginatedGui.setNextItem(row: Int, col: Int) {

@@ -8,15 +8,15 @@ class IdleMobService : Service() {
 
     init {
         IdleMobPlayerInvisibilityHandler()
-        IdleMobHolograms()
         IdleMobParticlePacketListener()
+        IdleMobHolograms()
     }
 
     override fun onDisable() {
         idleMobSpawnHandler.disposeAllMobs()
     }
 
-    fun getIdleMob(user: User): IdleMob? {
-        return idleMobSpawnHandler.idleMobs[user.idleMobId]
+    fun forceNewIdleMob(user: User) {
+        idleMobSpawnHandler.spawnNewIdleMob(user)
     }
 }

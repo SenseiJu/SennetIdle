@@ -1,60 +1,31 @@
 package me.senseiju.sennetidle.idlemob
 
-import com.comphenix.protocol.PacketType
-import com.comphenix.protocol.events.PacketContainer
-import me.senseiju.sennetidle.plugin
 import me.senseiju.sennetidle.reagents.Reagent
-import me.senseiju.sennetidle.reagents.reagentData.DroppableReagent
+import me.senseiju.sennetidle.upgrades.Upgrade
+import me.senseiju.sennetidle.upgrades.upgradeData.Explosive
 import me.senseiju.sennetidle.user.User
-import me.senseiju.sennetidle.utils.MultiRunnable
-import me.senseiju.sentils.extensions.primitives.asCurrencyFormat
-import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.NamespacedKey
-import org.bukkit.boss.BarColor
-import org.bukkit.boss.BarStyle
 import org.bukkit.entity.EntityType
-import org.bukkit.entity.LivingEntity
-import org.bukkit.entity.Player
-import org.bukkit.event.entity.EntityCombustEvent
-import org.bukkit.event.entity.EntityDamageByEntityEvent
-import org.bukkit.event.entity.EntityDeathEvent
-import java.util.*
-import kotlin.math.roundToLong
 
-open class IdleMob(
-    protected val user: User,
+class IdleMob(
+    user: User,
     location: Location,
     entityType: EntityType,
-    private val maxHealth: Long
-) {
-    val playerId = user.playerId
-
-    protected var currentHealth = maxHealth
-    private val healthBarKey = NamespacedKey(plugin, "idle-mob-health-${playerId.toString().lowercase()}")
-    private val healthBar = plugin.server.createBossBar(healthBarKey, "Health", BarColor.RED, BarStyle.SOLID)
-
-    val entity = location.world.spawnEntity(location.clone().add(0.0, 10.0, 0.0), entityType) as LivingEntity
-
-    private val packet = PacketContainer(PacketType.Play.Server.ENTITY_DESTROY)
-
-    protected val runnables = MultiRunnable()
-
-    var cps = 0
-        private set
+    maxHealth: Long
+) : AbstractIdleMob(user, location, entityType, maxHealth) {
 
     init {
-        user.idleMobId = getUniqueId()
+        user.idleMob = this
 
-        healthBar.removeAll()
+        runnables.addRepeatingRunnable(1, 1) {
+            val explosive = Upgrade.EXPLOSIVE.dataAs<Explosive>()
+            if (explosive.shouldProc(user)) {
+                currentHealth = 0
+                entity.health = 0.0
 
-        entity.setAI(false)
-        entity.isSilent = true
-        entity.maximumNoDamageTicks = 5
-        entity.removeWhenFarAway = false
-
-        packet.intLists.writeSafely(0, mutableListOf(entity.entityId))
-
+                explosive.handleProc(user, location)
+            }
+        }
         runnables.addRepeatingRunnable(20) {
             currentHealth -= user.dps
 
@@ -64,87 +35,28 @@ open class IdleMob(
 
             updateEntityHealthVisuals()
         }
-        runnables.addRepeatingRunnable(1, 1) {
-            entity.teleport(location)
-        }
-        runnables.start(plugin, false)
-
-        Bukkit.getOnlinePlayers()
-            .filterNot { it.uniqueId == playerId }
-            .forEach {
-                @Suppress("UnstableApiUsage") it.hideEntity(plugin, entity)
-            }
-
-        user.withPlayer {
-            it.setPlayerTime(6000, false)
-            @Suppress("UnstableApiUsage") it.showEntity(plugin, entity)
-
-            healthBar.addPlayer(it)
-        }
-
-        updateEntityHealthVisuals()
     }
 
-    open fun dispose() {
-        entity.remove()
-
-        healthBar.removeAll()
-        plugin.server.removeBossBar(healthBarKey)
-
-        runnables.cancel()
+    override fun onHit() {
+        user.addMoney(15.0)
     }
 
-    fun getUniqueId(): UUID {
-        return entity.uniqueId
-    }
+    override fun onKill(success: Boolean) {
+        if (success) {
+            user.addMoney(100.0)
 
-    fun mobHealthString(): String {
-        return "${currentHealth.coerceAtLeast(0).asCurrencyFormat()}/${maxHealth.asCurrencyFormat()}"
-    }
-
-    private fun updateEntityHealthVisuals() {
-        healthBar.progress = currentHealth.coerceAtLeast(0).toDouble() / maxHealth
-    }
-
-    fun onEntityDamageByEntityEvent(e: EntityDamageByEntityEvent) {
-        if (e.damager !is Player || e.damager.uniqueId != playerId) {
-            e.isCancelled = true
-            return
-        }
-
-        e.damage = Double.MIN_VALUE
-
-        currentHealth -= (user.dps * 0.2).roundToLong()
-
-        if (currentHealth <= 0) {
-            entity.health = 0.0
-        }
-
-        cps++
-        runnables.addRepeatingRunnable(20, 1) { cps-- }
-
-        updateEntityHealthVisuals()
-    }
-
-    fun onEntityCombustEvent(e: EntityCombustEvent) {
-        e.isCancelled = true
-    }
-
-    open fun onEntityDeathEvent(e: EntityDeathEvent) {
-        Reagent.droppable.forEach {
-            val data = it.dataAs<DroppableReagent>()
-
-            if (user.currentWave < data.waveUnlock) {
-                return@forEach
-            }
-
-            if (data.shouldDrop()) {
-                user.addReagent(it, data.randomAmount())
+            Reagent.droppable.forEach {
+                val data = it.asDroppable()
+                if (!user.hasEnoughPromotions(it) || user.currentWave < data.waveUnlock) {
+                    return
+                }
+                if (data.shouldDrop()) {
+                    user.addReagent(
+                        it,
+                        data.randomAmount() * (user.currentWave.div(BOSS_WAVE_INTERVAL)).coerceAtLeast(1)
+                    )
+                }
             }
         }
-
-        user.currentWave++
-
-        dispose()
     }
 }

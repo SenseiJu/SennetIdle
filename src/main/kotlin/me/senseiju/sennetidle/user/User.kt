@@ -1,80 +1,79 @@
 package me.senseiju.sennetidle.user
 
+import me.senseiju.sennetidle.idlemob.AbstractIdleMob
+import me.senseiju.sennetidle.plugin
 import me.senseiju.sennetidle.reagents.Reagent
-import me.senseiju.sennetidle.reagents.reagentData.CraftableReagent
-import me.senseiju.sennetidle.reagents.reagentData.DamagingReagent
+import me.senseiju.sennetidle.upgrades.Upgrade
+import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.util.*
 
+private val econ = plugin.server.servicesManager.getRegistration(Economy::class.java)?.provider ?: throw Exception("Vault not found")
+
 class User(
     val playerId: UUID,
     var currentWave: Int,
-    val reagents: EnumMap<Reagent, Int>
-) {
-    var idleMobId: UUID? = null
+    var promotions: Int,
+    var unspentUpgradePoints: Int,
+    override val reagents: EnumMap<Reagent, Int>,
+    override val upgrades: EnumMap<Upgrade, Int>
+) : ReagentHolder, UpgradeHolder {
+    var idleMob: AbstractIdleMob? = null
     var dps: Long = 35
+        private set
+    var bossDps: Long = 0
         private set
 
     init {
         Reagent.damaging.forEach {
-            dps += it.dataAs<DamagingReagent>().damagePerSecond * reagents.getOrDefault(it, 0)
+            onAddReagent(it, getReagentAmount(it))
         }
     }
 
     companion object {
         fun new(playerId: UUID): User {
-            return User(playerId, 1, Reagent.emptyUserMap())
+            return User(playerId, 1, 0, 0, Reagent.emptyUserMap(), Upgrade.emptyUserMap())
         }
     }
 
-    fun getPlayer(): Player? {
-        return Bukkit.getPlayer(playerId)
+    fun addMoney(amount: Double) {
+        econ.depositPlayer(Bukkit.getOfflinePlayer(playerId), amount)
     }
 
-    fun addReagent(reagent: Reagent, amount: Int) {
-        reagents.putIfAbsent(reagent, 0)
-        reagents[reagent] = reagents[reagent]!! + amount
-
+    override fun onAddReagent(reagent: Reagent, amount: Int) {
         if (reagent.isDamaging()) {
-            dps += reagent.dataAs<DamagingReagent>().damagePerSecond * amount
+            val damagingReagent = reagent.asDamageable()
+
+            if (damagingReagent.bossOnly) {
+                bossDps += damagingReagent.damagePerSecond * amount
+            } else {
+                dps += damagingReagent.damagePerSecond * amount
+            }
         }
     }
 
-    fun hasReagent(reagent: Reagent, amount: Int): Boolean {
-        return reagents.getOrPut(reagent) { 0 } >= amount
+    fun hasEnoughPromotions(reagent: Reagent): Boolean {
+        return promotions >= reagent.data.promotionUnlock
     }
 
-    fun canCraftReagent(reagent: Reagent, amountToCraft: Int): Boolean {
-        if (!reagent.isCraftable()) {
-            return false
-        }
-
-        reagent.dataAs<CraftableReagent>()
-            .reagentRequirements
-            .forEach { (requiredReagent, requiredAmount) ->
-                if (!hasReagent(requiredReagent, requiredAmount * amountToCraft)) {
-                    return false
-                }
-            }
-
-        return true
-    }
-
-    fun craftReagent(reagent: Reagent, amountToCraft: Int) {
-        reagent.dataAs<CraftableReagent>()
-            .reagentRequirements
-            .forEach { (requiredReagent, requiredAmount) ->
-                addReagent(requiredReagent, -requiredAmount * amountToCraft)
-            }
-
-        addReagent(reagent, amountToCraft)
+    fun canPromote(): Boolean {
+        return currentWave > 50 + (promotions * 30)
     }
 
     /**
      * Executes the block if the [Player] is available otherwise nothing will happen
      */
     fun withPlayer(block: (Player) -> Unit) {
-        getPlayer()?.let { block(it) }
+        Bukkit.getPlayer(playerId)?.let { block(it) }
+    }
+
+    override fun addUpgradeLevel(upgrade: Upgrade, level: Int) {
+        unspentUpgradePoints = (unspentUpgradePoints - level).coerceAtLeast(0)
+        super.addUpgradeLevel(upgrade, level)
+    }
+
+    override fun canLevelUpgrade(upgrade: Upgrade): Boolean {
+        return unspentUpgradePoints > 0 && super.canLevelUpgrade(upgrade)
     }
 }

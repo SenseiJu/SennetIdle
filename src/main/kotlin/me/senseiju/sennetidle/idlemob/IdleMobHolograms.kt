@@ -9,7 +9,7 @@ import org.bukkit.Location
 class IdleMobHolograms {
     private val hologramLocation = plugin.config.getStringList("idle-mob.hologram-locations").map { it.parseLocation() }
     private val hologramLines = listOf(
-        "&b&lCurrent Wave: &e%idle_user_current_wave%",
+        "&6&lWave %idle_user_current_wave%",
         "",
         "&b&lHealth: &e%idle_user_mob_health%",
         "&b&lCPS: &e%idle_user_cps%",
@@ -20,6 +20,8 @@ class IdleMobHolograms {
     }
 
     init {
-        holograms.forEach { it.updateInterval = 1 }
+        holograms.forEach {
+            it.updateInterval = 1
+        }
     }
 }

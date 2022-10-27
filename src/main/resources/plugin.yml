@@ -1,11 +1,13 @@
 name: SennetIdle
 main: me.senseiju.sennetidle.SennetIdle
 version: ${version}
-api-version: 1.17
+api-version: 1.19
 depend:
   - ProtocolLib
   - DecentHolograms
   - PlaceholderAPI
+  - Vault
+  - Citizens
 
 author: SenseiJu
 website: https://senseiju.me

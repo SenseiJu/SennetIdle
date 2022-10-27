@@ -1,9 +1,0 @@
-{
-    "id": "stone_blade",
-    "weight": 600,
-    "material": "STONE_SWORD",
-    "displayName": "Stone Blade",
-    "craftingReagents": {
-        "stone": 8
-    }
-}

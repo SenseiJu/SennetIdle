@@ -1,9 +1,0 @@
-{
-    "id": "diamond",
-    "weight": 1300,
-    "material": "DIAMOND",
-    "displayName": "Diamond",
-    "mobDropUnlockWave": 60,
-    "mobDropMinAmount": 2,
-    "mobDropMaxAmount": 5
-}

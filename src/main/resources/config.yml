@@ -1,3 +1,4 @@
+save-interval: 120
 idle-mob:
   spawn-location: "world:100:100:100:0:0"
   player-invisibility-radius: 5.0

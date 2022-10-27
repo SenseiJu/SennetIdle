@@ -1,9 +1,0 @@
-{
-    "id": "stone",
-    "weight": 500,
-    "material": "STONE",
-    "displayName": "Stone",
-    "mobDropUnlockWave": 15,
-    "mobDropMinAmount": 2,
-    "mobDropMaxAmount": 5
-}

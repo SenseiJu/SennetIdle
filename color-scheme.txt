@@ -1,0 +1,6 @@
+Dark Grey, Bold -> Gui titles
+
+Pink, Bold, Italics -> ItemStack names
+Grey -> Descriptions and other unimportant text
+Light Blue, Italics -> Keys in lore
+Yellow, Italics -> Values in lore

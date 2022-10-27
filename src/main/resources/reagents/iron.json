@@ -1,9 +1,0 @@
-{
-    "id": "iron",
-    "weight": 900,
-    "material": "IRON_INGOT",
-    "displayName": "Iron",
-    "mobDropUnlockWave": 30,
-    "mobDropMinAmount": 2,
-    "mobDropMaxAmount": 5
-}

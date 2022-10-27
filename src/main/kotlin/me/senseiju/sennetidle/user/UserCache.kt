@@ -16,7 +16,7 @@ import org.bukkit.event.player.PlayerKickEvent
 import java.util.*
 import kotlin.system.measureTimeMillis
 
-private const val EXECUTE_INTERVAL_IN_TICKS = 20 * 20L
+private val SAVE_INTERVAL_IN_TICKS = plugin.config.getInt("save-interval", 120) * 20L
 
 private val DATA_FAILED_TO_LOAD_COMPONENT = "<red><b>Failed to load user data, try reconnecting (If this issue persists, contact an Admin)".component()
 
@@ -31,7 +31,7 @@ class UserCache : Listener {
     init {
         plugin.registerEvents(this)
 
-        runnable.runTaskTimerAsynchronously(plugin, EXECUTE_INTERVAL_IN_TICKS, EXECUTE_INTERVAL_IN_TICKS)
+        runnable.runTaskTimerAsynchronously(plugin, SAVE_INTERVAL_IN_TICKS, SAVE_INTERVAL_IN_TICKS)
     }
 
     @Synchronized

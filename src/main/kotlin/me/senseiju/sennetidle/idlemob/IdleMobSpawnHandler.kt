@@ -7,6 +7,7 @@ import me.senseiju.sennetidle.user.UserService
 import me.senseiju.sentils.registerEvents
 import org.bukkit.Bukkit
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityCombustEvent
@@ -22,8 +23,7 @@ private const val BOSS_IDLE_MOB_BASE_HEALTH = 250.0
 val BOSS_ENTITY_TYPES =
     setOf(
         EntityType.IRON_GOLEM,
-        EntityType.WARDEN,
-        EntityType.LLAMA
+        EntityType.WARDEN
     )
 
 private const val IDLE_MOB_BASE_HEALTH = 100.0
@@ -44,7 +44,7 @@ val REGULAR_ENTITY_TYPES =
 private val userService = serviceProvider.get<UserService>()
 
 class IdleMobSpawnHandler : Listener {
-    val idleMobs = hashMapOf<UUID, IdleMob>()
+    val idleMobs = hashMapOf<UUID, AbstractIdleMob>()
 
     private val spawnLocation = plugin.config.getLocation("idle-mob.spawn-location") ?: throw Exception("'idle-mob.spawn-location' config option not set!")
 
@@ -58,11 +58,13 @@ class IdleMobSpawnHandler : Listener {
         }
     }
 
-    private fun spawnNewIdleMob(user: User) {
+    fun spawnNewIdleMob(user: User) {
         spawnNewIdleMob(user, user.currentWave % BOSS_WAVE_INTERVAL == 0)
     }
 
-    fun spawnNewIdleMob(user: User, isBoss: Boolean) {
+    private fun spawnNewIdleMob(user: User, isBoss: Boolean) {
+        user.idleMob?.dispose()
+
         val idleMob = if (isBoss) {
             BossIdleMob(
                 user,
@@ -75,16 +77,17 @@ class IdleMobSpawnHandler : Listener {
                 user,
                 spawnLocation,
                 REGULAR_ENTITY_TYPES.random(),
-                calculateMobHealth(IDLE_MOB_BASE_HEALTH, user.currentWave))
+                calculateMobHealth(IDLE_MOB_BASE_HEALTH, user.currentWave)
+            )
         }
 
-        idleMobs.put(idleMob.getUniqueId(), idleMob)?.dispose()
+        idleMobs[idleMob.getEntityUUID()] = idleMob
     }
 
     @EventHandler
     private fun onPlayerJoinEvent(e: PlayerJoinEvent) {
         idleMobs.values.filter {
-            it.playerId == e.player.uniqueId
+            it.getPlayerUUID() == e.player.uniqueId
         }.let {
             if (it.isEmpty()) {
                 spawnNewIdleMob(userService.getUser(e.player.uniqueId))
@@ -92,7 +95,7 @@ class IdleMobSpawnHandler : Listener {
         }
 
         idleMobs.values.forEach {
-            if (it.playerId != e.player.uniqueId) {
+            if (it.getPlayerUUID() != e.player.uniqueId) {
                 @Suppress("UnstableApiUsage")
                 e.player.hideEntity(plugin, it.entity)
             }
@@ -101,20 +104,31 @@ class IdleMobSpawnHandler : Listener {
 
     @EventHandler
     private fun onEntityDamageByEntityEvent(e: EntityDamageByEntityEvent) {
-        idleMobs[e.entity.uniqueId]?.onEntityDamageByEntityEvent(e)
+        idleMobs[e.entity.uniqueId]?.let {
+            if (e.damager !is Player || e.damager.uniqueId != it.getPlayerUUID()) {
+                e.isCancelled = true
+                return
+            }
+
+            e.damage = Double.MIN_VALUE
+
+            it.onDamageByPlayer()
+        }
     }
 
     @EventHandler
     private fun onEntityCombustEvent(e: EntityCombustEvent) {
-        idleMobs[e.entity.uniqueId]?.onEntityCombustEvent(e)
+        idleMobs[e.entity.uniqueId]?.let {
+            e.isCancelled = true
+        }
     }
 
     @EventHandler
     private fun onEntityDeathEvent(e: EntityDeathEvent) {
         val idleMob = idleMobs.remove(e.entity.uniqueId) ?: return
-        idleMob.onEntityDeathEvent(e)
+        idleMob.onDeath()
 
-        val player = Bukkit.getPlayer(idleMob.playerId) ?: return
+        val player = Bukkit.getPlayer(idleMob.getPlayerUUID()) ?: return
         if (player.isOnline) {
             spawnNewIdleMob(userService.getUser(player.uniqueId))
         }
