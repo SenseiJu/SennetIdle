@@ -1,9 +1,12 @@
 package me.senseiju.sennetidle.user
 
+import me.senseiju.sennetidle.Message
 import me.senseiju.sennetidle.idlemob.AbstractIdleMob
 import me.senseiju.sennetidle.plugin
 import me.senseiju.sennetidle.reagents.Reagent
 import me.senseiju.sennetidle.upgrades.Upgrade
+import me.senseiju.sennetidle.utils.message
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -32,13 +35,27 @@ class User(
     }
 
     companion object {
+        /**
+         * Generates a blank user
+         *
+         * @param playerId the players UUID
+         *
+         * @return a blank user
+         */
         fun new(playerId: UUID): User {
             return User(playerId, 1, 0, 0, Reagent.emptyUserMap(), Upgrade.emptyUserMap())
         }
     }
 
+    /**
+     * Adds money to the user with [Economy]
+     *
+     * If a negative amount is sent, it will automatically be replaced with 0
+     *
+     * @param amount the amount to add (NO NEGATIVES PLEASE)
+     */
     fun addMoney(amount: Double) {
-        econ.depositPlayer(Bukkit.getOfflinePlayer(playerId), amount)
+        econ.depositPlayer(Bukkit.getOfflinePlayer(playerId), amount.coerceAtLeast(0.0))
     }
 
     override fun onAddReagent(reagent: Reagent, amount: Int) {
@@ -53,10 +70,22 @@ class User(
         }
     }
 
+    /**
+     * Checks if the user has enough promotions to access the specified [Reagent]
+     *
+     * @param reagent the reagent to check access for
+     *
+     * @return true if user has enough promotions for the [Reagent]
+     */
     fun hasEnoughPromotions(reagent: Reagent): Boolean {
         return promotions >= reagent.data.promotionUnlock
     }
 
+    /**
+     * Checks if the user has met the requirements to promote
+     *
+     * @return true if requirements met
+     */
     fun canPromote(): Boolean {
         return currentWave > 50 + (promotions * 30)
     }
@@ -66,6 +95,16 @@ class User(
      */
     fun withPlayer(block: (Player) -> Unit) {
         Bukkit.getPlayer(playerId)?.let { block(it) }
+    }
+
+    /**
+     * Sends a message to the user if the player is online, uses [withPlayer] to get the player
+     *
+     * @param msg the message
+     * @param tagResolvers any tag resolvers to apply
+     */
+    fun message(msg: Message, vararg tagResolvers: TagResolver.Single = emptyArray()) {
+        withPlayer { it.message(msg, *tagResolvers) }
     }
 
     override fun addUpgradeLevel(upgrade: Upgrade, level: Int) {

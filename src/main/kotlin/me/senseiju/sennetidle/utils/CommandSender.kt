@@ -29,7 +29,7 @@ fun CommandSender.configMiniMessage(key: String, vararg tagResolvers: TagResolve
     }
 }
 
-fun CommandSender.miniMessage(msg: Message, vararg tagResolvers: TagResolver.Single = emptyArray()) {
+fun CommandSender.message(msg: Message, vararg tagResolvers: TagResolver.Single = emptyArray()) {
     msg.strings.map { mm.deserialize(it, *tagResolvers) }
         .forEach(this::sendMessage)
 }
