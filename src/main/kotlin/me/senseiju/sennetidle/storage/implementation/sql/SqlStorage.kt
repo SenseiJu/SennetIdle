@@ -1,16 +1,15 @@
 package me.senseiju.sennetidle.storage.implementation.sql
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import me.senseiju.sennetidle.plugin
 import me.senseiju.sennetidle.reagents.Reagent
 import me.senseiju.sennetidle.storage.implementation.StorageImplementation
 import me.senseiju.sennetidle.upgrades.Upgrade
 import me.senseiju.sennetidle.user.User
-import me.senseiju.sennetidle.utils.extensions.forEach
-import me.senseiju.sennetidle.utils.extensions.updateBatchQuery
-import me.senseiju.sentils.storage.ConfigFile
-import me.senseiju.sentils.storage.Database
-import me.senseiju.sentils.storage.Replacements
 import org.intellij.lang.annotations.Language
+import java.sql.Connection
+import java.sql.PreparedStatement
 import java.util.*
 
 @Language("mysql")
@@ -36,41 +35,70 @@ private const val UPGRADE_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS `upgrades` 
         "PRIMARY KEY (`player_id`, `upgrade`));"
 
 @Language("mysql")
-private const val USER_SELECT = "SELECT * FROM `users` WHERE `player_id`=?;"
+private const val USER_SELECT =
+    """
+        SELECT `users`.*, IFNULL(`upgrades_grp`.`upgrade_levels`, '') AS `upgrade_levels`, IFNULL(`reagents_grp`.`reagent_amounts`, '') AS `reagent_amounts`
+        FROM `users`
+        LEFT JOIN (SELECT `upgrades`.`player_id`, GROUP_CONCAT(`upgrades`.`upgrade`, ':', `upgrades`.`level`) AS `upgrade_levels` FROM `upgrades` WHERE `upgrades`.`player_id` = ? GROUP BY `upgrades`.`player_id`) AS `upgrades_grp` ON `users`.`player_id`= `upgrades_grp`.`player_id`
+        LEFT JOIN (SELECT `reagents`.`player_id`, GROUP_CONCAT(`reagents`.`reagent`, ':', `reagents`.`amount`) AS `reagent_amounts` FROM `reagents` WHERE `reagents`.`player_id` = ? GROUP BY `reagents`.`player_id`) AS `reagents_grp` ON `users`.`player_id`= `reagents_grp`.`player_id`
+        WHERE `users`.`player_id` = ?
+        GROUP BY `users`.`player_id`;
+    """
 @Language("mysql")
 private const val USER_INSERT = "INSERT INTO `users` (`player_id`, `current_wave`, `promotions`, `unspent_upgrade_points`) VALUES (?,?,?,?);"
 @Language("mysql")
 private const val USER_UPDATE = "UPDATE `users` SET `current_wave`=?, `promotions`=?, `unspent_upgrade_points`=? WHERE `player_id`=?;"
 
 @Language("mysql")
-private const val REAGENT_SELECT = "SELECT * FROM `reagents` WHERE `player_id`=?;"
-@Language("mysql")
 private const val REAGENT_DELETE = "DELETE FROM `reagents` WHERE `player_id`=?;"
 @Language("mysql")
 private const val REAGENT_INSERT = "INSERT INTO `reagents` (`player_id`, `reagent`, `amount`) VALUES (?,?,?);"
 
 @Language("mysql")
-private const val UPGRADE_SELECT = "SELECT * FROM `upgrades` WHERE `player_id`=?;"
-@Language("mysql")
 private const val UPGRADE_DELETE = "DELETE FROM `upgrades` WHERE `player_id`=?;"
 @Language("mysql")
 private const val UPGRADE_INSERT = "INSERT INTO `upgrades` (`player_id`, `upgrade`, `level`) VALUES (?,?,?);"
 
-class SqlStorage : StorageImplementation {
-    private val database = Database(ConfigFile(plugin, "database.yml", true))
+class SqlStorage(
+    host: String,
+    username: String,
+    password: String,
+    database: String
+) : StorageImplementation {
+    private val dataSource: HikariDataSource
+
+    init {
+        dataSource = HikariConfig().apply {
+            this.jdbcUrl = "jdbc:mysql://${host}/${database}?autoReconnect=true&allowMultiQueries=true&characterEncoding=utf-8&serverTimezone=UTC&useSSL=false"
+            this.username = username
+            this.password = password
+            this.connectionTimeout = 8000
+
+            addDataSourceProperty("cachePrepStmts", "true")
+            addDataSourceProperty("prepStmtCacheSize", "250")
+            addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
+        }.let {
+            HikariDataSource(it)
+        }
+    }
 
     init {
         generateSchema()
     }
 
     private fun generateSchema() {
-        database.updateQuery(USER_CREATE_TABLE)
-        database.updateQuery(REAGENT_CREATE_TABLE)
-        database.updateQuery(UPGRADE_CREATE_TABLE)
+        dataSource.connection.usePreparedStatement(USER_CREATE_TABLE) { it.executeUpdate() }
+        dataSource.connection.usePreparedStatement(REAGENT_CREATE_TABLE) { it.executeUpdate() }
+        dataSource.connection.usePreparedStatement(UPGRADE_CREATE_TABLE) { it.executeUpdate() }
     }
 
     override fun loadUser(playerId: UUID): User {
-        return database.query(USER_SELECT, playerId.toString()).use { set ->
+        return dataSource.connection.usePreparedStatement(USER_SELECT) { stmt ->
+            repeat(3) {
+                stmt.setString(it + 1, playerId.toString())
+            }
+
+            val set = stmt.executeQuery()
             if (!set.next()) {
                 User.new(playerId).let {
                     insertUser(it)
@@ -83,79 +111,109 @@ class SqlStorage : StorageImplementation {
                     set.getInt("current_wave"),
                     set.getInt("promotions"),
                     set.getInt("unspent_upgrade_points"),
-                    loadUserReagents(playerId),
-                    loadUserUpgrades(playerId)
+                    convertReagentAmounts(set.getString("reagent_amounts")),
+                    convertUpgradeLevels(set.getString("upgrade_levels"))
                 )
             }
         }
     }
 
-    private fun loadUserReagents(playerId: UUID): EnumMap<Reagent, Int> {
-        return database.query(REAGENT_SELECT, playerId.toString()).use {
-            val map = Reagent.emptyUserMap()
-            it.forEach {
+    private fun convertReagentAmounts(reagentAmounts: String): EnumMap<Reagent, Int> {
+        return Reagent.emptyUserMap().apply {
+            reagentAmounts.split(",").forEach {
                 val reagent = try {
-                    Reagent.valueOf(it.getString("reagent"))
+                    Reagent.valueOf(it.substringBefore(":"))
                 } catch (e: IllegalArgumentException) {
-                    plugin.slF4JLogger.error("${it.getString("reagent")} reagent does not exist")
+                    plugin.slF4JLogger.error("${it.substringBefore(":")} reagent does not exist")
                     return@forEach
                 }
 
-                map[reagent] = it.getInt("amount")
+                this[reagent] = it.substringAfter(":").toIntOrNull() ?: 0
             }
-
-            map
         }
     }
 
-    private fun loadUserUpgrades(playerId: UUID): EnumMap<Upgrade, Int> {
-        return database.query(UPGRADE_SELECT, playerId.toString()).use {
-            val map = Upgrade.emptyUserMap()
-            it.forEach {
+    private fun convertUpgradeLevels(upgradeLevels: String): EnumMap<Upgrade, Int> {
+        return Upgrade.emptyUserMap().apply {
+            upgradeLevels.split(",").forEach {
                 val upgrade = try {
-                    Upgrade.valueOf(it.getString("upgrade"))
-                } catch (e:IllegalArgumentException) {
-                    plugin.slF4JLogger.error("${it.getString("upgrade")} upgrade does not exist")
+                    Upgrade.valueOf(it.substringBefore(":"))
+                } catch (e: IllegalArgumentException) {
+                    plugin.slF4JLogger.error("${it.substringBefore(":")} upgrade does not exist")
                     return@forEach
                 }
 
-                map[upgrade] = it.getInt("level")
+                this[upgrade] = it.substringAfter(":").toIntOrNull() ?: 0
             }
-
-            map
         }
     }
 
     override fun saveUser(user: User) {
-        database.updateQuery(USER_UPDATE, user.currentWave, user.promotions, user.unspentUpgradePoints, user.playerId.toString())
+        dataSource.connection.usePreparedStatement(USER_UPDATE) { stmt ->
+            stmt.setInt(1, user.currentWave)
+            stmt.setInt(2, user.promotions)
+            stmt.setInt(3, user.unspentUpgradePoints)
+            stmt.setString(4, user.playerId.toString())
+
+            stmt.executeUpdate()
+        }
 
         saveUserReagents(user)
         saveUserUpgrades(user)
     }
 
     private fun saveUserReagents(user: User) {
-        database.updateQuery(REAGENT_DELETE, user.playerId.toString())
-        database.updateBatchQuery(
-            REAGENT_INSERT,
-            user.reagents
-                .map {
-                    Replacements(user.playerId.toString(), it.key.toString(), it.value)
-                }
-        )
+        dataSource.connection.usePreparedStatement(REAGENT_DELETE) { stmt ->
+            stmt.setString(1, user.playerId.toString())
+
+            stmt.executeUpdate()
+        }
+        dataSource.connection.usePreparedStatement(REAGENT_INSERT) { stmt ->
+            user.reagents.forEach {
+                stmt.setString(1, user.playerId.toString())
+                stmt.setString(2, it.key.toString())
+                stmt.setInt(3, it.value)
+
+                stmt.addBatch()
+            }
+
+            stmt.executeBatch()
+        }
     }
 
     private fun saveUserUpgrades(user: User) {
-        database.updateQuery(UPGRADE_DELETE, user.playerId.toString())
-        database.updateBatchQuery(
-            UPGRADE_INSERT,
-            user.upgrades
-                .map {
-                    Replacements(user.playerId.toString(), it.key.toString(), it.value)
-                }
-        )
+        dataSource.connection.usePreparedStatement(UPGRADE_DELETE) { stmt ->
+            stmt.setString(1, user.playerId.toString())
+
+            stmt.executeUpdate()
+        }
+        dataSource.connection.usePreparedStatement(UPGRADE_INSERT) { stmt ->
+            user.upgrades.forEach {
+                stmt.setString(1, user.playerId.toString())
+                stmt.setString(2, it.key.toString())
+                stmt.setInt(3, it.value)
+
+                stmt.addBatch()
+            }
+
+            stmt.executeBatch()
+        }
     }
 
     private fun insertUser(user: User) {
-        database.updateQuery(USER_INSERT, user.playerId.toString(), user.currentWave, user.promotions, user.unspentUpgradePoints)
+        dataSource.connection.usePreparedStatement(USER_INSERT) { stmt ->
+            stmt.setString(1, user.playerId.toString())
+            stmt.setInt(2, user.currentWave)
+            stmt.setInt(3, user.promotions)
+            stmt.setInt(4, user.unspentUpgradePoints)
+
+            stmt.executeUpdate()
+        }
+    }
+
+    private fun <R> Connection.usePreparedStatement(query: String, block: (PreparedStatement) -> R): R {
+        return use {
+            it.prepareStatement(query).use(block)
+        }
     }
 }
