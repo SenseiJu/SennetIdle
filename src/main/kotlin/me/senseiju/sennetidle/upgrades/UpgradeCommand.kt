@@ -4,7 +4,7 @@ import me.mattstudios.mf.annotations.*
 import me.mattstudios.mf.base.CommandBase
 import me.senseiju.sennetidle.*
 import me.senseiju.sennetidle.user.UserService
-import me.senseiju.sennetidle.utils.miniMessage
+import me.senseiju.sennetidle.utils.message
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import org.bukkit.entity.Player
 
@@ -25,7 +25,7 @@ class UpgradeCommand : CommandBase() {
     fun balance(sender: Player) {
         val user = userService.getUser(sender.uniqueId)
 
-        sender.miniMessage(
+        sender.message(
             Message.UPGRADE_POINTS_TO_SPEND,
             Placeholder.unparsed("unspent_points", "${user.unspentUpgradePoints}")
         )
@@ -35,19 +35,19 @@ class UpgradeCommand : CommandBase() {
     @Permission(PERMISSION_UPGRADE_MODIFY)
     fun addUpgradePoints(sender: Player, @Completion("#players") target: Player?, amount: Int?) {
         if (target == null) {
-            sender.miniMessage(Message.INVALID_PLAYER)
+            sender.message(Message.INVALID_PLAYER)
             return
         }
 
         if (amount == null) {
-            sender.miniMessage(Message.INVALID_AMOUNT)
+            sender.message(Message.INVALID_AMOUNT)
             return
         }
 
         userService.getUser(target.uniqueId).apply {
             unspentUpgradePoints = (unspentUpgradePoints + amount).coerceAtLeast(0)
         }
-        sender.miniMessage(
+        sender.message(
             Message.UPGRADE_POINTS_ADDED,
             Placeholder.unparsed("amount", "$amount"),
             Placeholder.unparsed("player_name", target.name)
@@ -58,17 +58,17 @@ class UpgradeCommand : CommandBase() {
     @Permission(PERMISSION_UPGRADE_MODIFY)
     fun set(sender: Player, @Completion("#players") target: Player?, @Completion("#enum") upgrade: Upgrade?, level: Int?) {
         if (target == null) {
-            sender.miniMessage(Message.INVALID_PLAYER)
+            sender.message(Message.INVALID_PLAYER)
             return
         }
 
         if (upgrade == null) {
-            sender.miniMessage(Message.INVALID_UPGRADE)
+            sender.message(Message.INVALID_UPGRADE)
             return
         }
 
         if (level == null) {
-            sender.miniMessage(Message.INVALID_LEVEL)
+            sender.message(Message.INVALID_LEVEL)
             return
         }
 

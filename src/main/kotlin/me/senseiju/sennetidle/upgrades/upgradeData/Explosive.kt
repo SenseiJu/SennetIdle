@@ -3,7 +3,7 @@ package me.senseiju.sennetidle.upgrades.upgradeData
 import me.senseiju.sennetidle.Message
 import me.senseiju.sennetidle.upgrades.Upgrade
 import me.senseiju.sennetidle.user.User
-import me.senseiju.sennetidle.utils.miniMessage
+import me.senseiju.sennetidle.utils.message
 import me.senseiju.sennetidle.utils.randomChance
 import org.bukkit.Location
 import org.bukkit.Material
@@ -25,7 +25,7 @@ object Explosive : IdleMobUpgrade {
     fun handleProc(user: User, location: Location) {
         user.withPlayer {
             it.spawnParticle(Particle.EXPLOSION_HUGE, location, 1)
-            it.miniMessage(Message.UPGRADE_EXPLOSIVE_PROCED)
+            it.message(Message.UPGRADE_EXPLOSIVE_PROCED)
         }
     }
 }

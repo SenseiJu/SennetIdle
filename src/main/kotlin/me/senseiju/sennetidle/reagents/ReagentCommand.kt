@@ -4,7 +4,7 @@ import me.mattstudios.mf.annotations.*
 import me.mattstudios.mf.base.CommandBase
 import me.senseiju.sennetidle.*
 import me.senseiju.sennetidle.user.UserService
-import me.senseiju.sennetidle.utils.miniMessage
+import me.senseiju.sennetidle.utils.message
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -25,7 +25,7 @@ class ReagentCommand : CommandBase() {
     @Permission(PERMISSION_REAGENT_GUI)
     fun craft(sender: Player, @Completion("#enum") reagent: Reagent?) {
         if (reagent == null) {
-            sender.miniMessage(Message.INVALID_REAGENT)
+            sender.message(Message.INVALID_REAGENT)
             return
         }
 
@@ -41,22 +41,22 @@ class ReagentCommand : CommandBase() {
         amount: Int?
     ) {
         if (target == null) {
-            sender.miniMessage(Message.INVALID_PLAYER)
+            sender.message(Message.INVALID_PLAYER)
             return
         }
 
         if (reagent == null) {
-            sender.miniMessage(Message.INVALID_REAGENT)
+            sender.message(Message.INVALID_REAGENT)
             return
         }
 
         if (amount == null) {
-            sender.miniMessage(Message.INVALID_AMOUNT)
+            sender.message(Message.INVALID_AMOUNT)
             return
         }
 
         userService.getUser(target.uniqueId).addReagent(reagent, amount)
-        sender.miniMessage(
+        sender.message(
             Message.REAGENT_ADDED,
             Placeholder.unparsed("amount", "$amount"),
             Placeholder.unparsed("reagent", reagent.data.name),

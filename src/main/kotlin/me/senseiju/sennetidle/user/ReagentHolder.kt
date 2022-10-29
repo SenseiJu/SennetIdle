@@ -17,7 +17,13 @@ interface ReagentHolder {
         onAddReagent(reagent, amount)
     }
 
-    fun onAddReagent(reagent: Reagent, amount: Int) {}
+    /**
+     * This method is executed automatically when reagents have been added with [addReagent]
+     *
+     * @param reagent the reagent that was added
+     * @param amount the amount of [reagent] added
+     */
+    fun onAddReagent(reagent: Reagent, amount: Int)
 
     fun hasReagent(reagent: Reagent, amount: Int): Boolean {
         return reagents.getOrPut(reagent) { 0 } >= amount

@@ -21,4 +21,9 @@ enum class Message(vararg val strings: String) {
     UPGRADE_POINTS_ADDED("<green>Added <white><amount> upgrade points</white> to <white><player_name>"),
     UPGRADE_POINTS_TO_SPEND("<green>You have <white><unspent_points> upgrade points <green>to spend"),
     UPGRADE_EXPLOSIVE_PROCED("<red><b>|| <green>Explosive <red>||"),
+
+    /**
+     * Promotions
+     */
+    PROMOTION_UNAVAILABLE("<red>You do not meet the requirements for promotion")
 }

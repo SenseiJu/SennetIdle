@@ -1,6 +1,7 @@
 package me.senseiju.sennetidle.user
 
 import me.senseiju.sennetidle.plugin
+import me.senseiju.sennetidle.user.promotions.PromotionsCommand
 import me.senseiju.sentils.service.Service
 import java.util.*
 
@@ -9,7 +10,7 @@ class UserService : Service() {
     private val userCache = UserCache()
 
     init {
-        plugin.commandManager.register(PromoteCommand())
+        plugin.commandManager.register(PromotionsCommand())
 
         userPlaceholderExpansion.register()
     }
