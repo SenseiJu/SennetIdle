@@ -3,6 +3,7 @@ package me.senseiju.sennetidle.user
 import me.senseiju.sennetidle.Message
 import me.senseiju.sennetidle.idlemob.AbstractIdleMob
 import me.senseiju.sennetidle.plugin
+import me.senseiju.sennetidle.powers.Power
 import me.senseiju.sennetidle.reagents.Reagent
 import me.senseiju.sennetidle.upgrades.Upgrade
 import me.senseiju.sennetidle.utils.message
@@ -27,6 +28,7 @@ class User(
         private set
     var bossDps: Long = 0
         private set
+    var powerCooldowns: EnumMap<Power, Long> = EnumMap(Power::class.java)
 
     init {
         Reagent.damaging.forEach {

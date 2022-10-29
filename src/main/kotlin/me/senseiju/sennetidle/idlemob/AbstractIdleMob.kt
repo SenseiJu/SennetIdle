@@ -121,6 +121,17 @@ abstract class AbstractIdleMob(
         dispose()
     }
 
+    fun applyDamage(damage: Long) {
+        currentHealth -= damage
+
+        if (currentHealth <= 0) {
+            entity.health = 0.0
+        }
+
+        updateEntityHealthVisuals()
+    }
+
     abstract fun onHit()
+
     abstract fun onKill(success: Boolean)
 }

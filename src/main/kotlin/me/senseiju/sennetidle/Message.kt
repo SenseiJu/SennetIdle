@@ -23,6 +23,11 @@ enum class Message(vararg val strings: String) {
     UPGRADE_EXPLOSIVE_PROCED("<red><b>|| <green>Explosive <red>||"),
 
     /**
+     * Powers
+     */
+    POWER_COOLDOWN_REMAINING("<white><power> can be used in <time_remaining> seconds"),
+
+    /**
      * Promotions
      */
     PROMOTION_UNAVAILABLE("<red>You do not meet the requirements for promotion")
