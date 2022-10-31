@@ -3,12 +3,12 @@ package me.senseiju.sennetidle.idlemob
 import me.senseiju.sennetidle.plugin
 import me.senseiju.sennetidle.user.User
 import me.senseiju.sennetidle.utils.extensions.component
-import net.kyori.adventure.key.Key
-import net.kyori.adventure.sound.Sound
+import me.senseiju.sentils.extensions.entity.playSound
 import net.kyori.adventure.title.Title
 import net.kyori.adventure.util.Ticks
 import org.bukkit.Location
 import org.bukkit.NamespacedKey
+import org.bukkit.Sound
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
 import org.bukkit.entity.EntityType
@@ -19,11 +19,9 @@ private val BOSS_SPAWN_TITLE = Title.title(
     Title.Times.times(Ticks.duration(10), Ticks.duration(40), Ticks.duration(20))
 )
 
-private val BOSS_KILLED_SUCCESS_SOUND = Sound.sound(Key.key("ui.toast.challenge_complete"), Sound.Source.PLAYER, 1F, 1F)
-
 class BossIdleMob(
     user: User,
-    private val location: Location,
+    location: Location,
     entityType: EntityType,
     maxHealth: Long
 ) : AbstractIdleMob(user, location, entityType, maxHealth) {
@@ -66,7 +64,7 @@ class BossIdleMob(
     override fun onKill(success: Boolean) {
         if (success) {
             user.withPlayer {
-                it.playSound(BOSS_KILLED_SUCCESS_SOUND)
+                it.playSound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
             }
         } else {
             user.currentWave = (user.currentWave - (BOSS_WAVE_INTERVAL - 1)).coerceAtLeast(1)

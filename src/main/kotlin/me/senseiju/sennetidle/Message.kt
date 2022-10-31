@@ -30,5 +30,6 @@ enum class Message(vararg val strings: String) {
     /**
      * Promotions
      */
-    PROMOTION_UNAVAILABLE("<red>You do not meet the requirements for promotion")
+    PROMOTION_UNAVAILABLE("<red>You do not meet the requirements for promotion"),
+    PROMOTION_AVAILABLE("<green>You can promote <white>/promote"),
 }
