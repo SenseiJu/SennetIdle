@@ -40,7 +40,7 @@ abstract class AbstractIdleMob(
 
         entity.setAI(false)
         entity.isSilent = true
-        entity.maximumNoDamageTicks = 0
+        entity.maximumNoDamageTicks = 5
         entity.removeWhenFarAway = false
 
         runnables.addRepeatingRunnable(1, 1) {
