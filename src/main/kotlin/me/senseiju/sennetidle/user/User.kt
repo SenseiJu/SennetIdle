@@ -22,13 +22,13 @@ class User(
     var unspentUpgradePoints: Int,
     override val reagents: EnumMap<Reagent, Int>,
     override val upgrades: EnumMap<Upgrade, Int>
-) : ReagentHolder, UpgradeHolder {
+) : ReagentHolder, UpgradeHolder, PowerHolder {
+    override val powerCooldowns: EnumMap<Power, Long> = Power.emptyMap()
     var idleMob: AbstractIdleMob? = null
     var dps: Long = 35
         private set
     var bossDps: Long = 0
         private set
-    var powerCooldowns: EnumMap<Power, Long> = EnumMap(Power::class.java)
 
     init {
         Reagent.damaging.forEach {
@@ -45,7 +45,7 @@ class User(
          * @return a blank user
          */
         fun new(playerId: UUID): User {
-            return User(playerId, 1, 0, 0, Reagent.emptyUserMap(), Upgrade.emptyUserMap())
+            return User(playerId, 1, 0, 0, Reagent.emptyMap(), Upgrade.emptyMap())
         }
     }
 

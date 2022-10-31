@@ -25,7 +25,9 @@ enum class Message(vararg val strings: String) {
     /**
      * Powers
      */
-    POWER_COOLDOWN_REMAINING("<white><power> can be used in <time_remaining> seconds"),
+    POWER_COOLDOWN_REMAINING("<light_purple><b><power></b> <red>is not ready <white>(<time_remaining> seconds remaining)"),
+    POWER_ACTIVATED("<light_purple><b><power></b> <green>activated"),
+    POWER_ACTIVATED_WITH_DURATION("<light_purple><b><power></b> <green>activated for <white><duration> seconds"),
 
     /**
      * Promotions

@@ -1,6 +1,7 @@
 package me.senseiju.sennetidle.idlemob
 
 import me.senseiju.sennetidle.plugin
+import me.senseiju.sennetidle.powers.powerData.AdrenalineRush
 import me.senseiju.sennetidle.upgrades.Upgrade
 import me.senseiju.sennetidle.upgrades.upgradeData.PlayerUpgrade
 import me.senseiju.sennetidle.user.User
@@ -88,6 +89,11 @@ abstract class AbstractIdleMob(
         val dm = DamageModifier(user.dps * 0.2)
 
         Upgrade.playerUpgrades.forEach { it.dataAs<PlayerUpgrade>().onPlayerDamageIdleMob(user, dm) }
+
+        if (AdrenalineRush.isActive(user)) {
+            println("AMPLIFYING")
+            dm.finalDamage *= AdrenalineRush.DAMAGE_MULTIPLIER
+        }
 
         currentHealth -= dm.finalDamage.roundToLong()
 

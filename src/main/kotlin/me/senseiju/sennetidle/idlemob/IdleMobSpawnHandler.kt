@@ -86,6 +86,10 @@ class IdleMobSpawnHandler : Listener {
 
     @EventHandler
     private fun onPlayerJoinEvent(e: PlayerJoinEvent) {
+        if (!e.player.isOnline) {
+            return
+        }
+
         idleMobs.values.filter {
             it.getPlayerUUID() == e.player.uniqueId
         }.let {

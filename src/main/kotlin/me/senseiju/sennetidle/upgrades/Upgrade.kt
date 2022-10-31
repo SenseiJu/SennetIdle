@@ -11,7 +11,7 @@ enum class Upgrade(val data: BaseUpgrade) {
     EXPLOSIVE(Explosive);
 
     companion object {
-        fun emptyUserMap() = values().associateWithTo(EnumMap(Upgrade::class.java)) { 0 }
+        fun emptyMap() = values().associateWithTo(EnumMap(Upgrade::class.java)) { 0 }
 
         /*
         The upgrades are in an order of execution for idle mob processing

@@ -13,7 +13,7 @@ interface ModelItem {
 
     fun itemStack(): ItemStack {
         return ItemBuilder.from(material)
-            .name("<light_purple><b>$name".component())
+            .name(name.component())
             .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE)
             .apply {
                 if (modelData > 0) {

@@ -119,7 +119,7 @@ class SqlStorage(
     }
 
     private fun convertReagentAmounts(reagentAmounts: String): EnumMap<Reagent, Int> {
-        return Reagent.emptyUserMap().apply {
+        return Reagent.emptyMap().apply {
             reagentAmounts.split(",").forEach {
                 val reagent = try {
                     Reagent.valueOf(it.substringBefore(":"))
@@ -134,7 +134,7 @@ class SqlStorage(
     }
 
     private fun convertUpgradeLevels(upgradeLevels: String): EnumMap<Upgrade, Int> {
-        return Upgrade.emptyUserMap().apply {
+        return Upgrade.emptyMap().apply {
             upgradeLevels.split(",").forEach {
                 val upgrade = try {
                     Upgrade.valueOf(it.substringBefore(":"))

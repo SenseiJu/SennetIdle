@@ -24,7 +24,7 @@ enum class Reagent(val data: BaseReagent) {
     DIAMOND_SWORD(DiamondSword);
 
     companion object {
-        fun emptyUserMap() = values().associateWithTo(EnumMap(Reagent::class.java)) { 0 }
+        fun emptyMap() = values().associateWithTo(EnumMap(Reagent::class.java)) { 0 }
 
         val droppable = values().filter { it.isDroppable() }
         val damaging = values().filter { it.isDamaging() }

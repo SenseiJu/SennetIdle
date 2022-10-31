@@ -5,11 +5,16 @@ import me.senseiju.sennetidle.powers.Power
 import me.senseiju.sennetidle.user.User
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import org.bukkit.Material
+import java.util.concurrent.TimeUnit
+
+private val power = Power.ADRENALINE_RUSH
 
 object AdrenalineRush : BasePower {
-    val duration = 5
+    const val DAMAGE_MULTIPLIER = 1.15
+    private val duration = TimeUnit.SECONDS.toMillis(5)
+
     override val promotionUnlock = 3
-    override val cooldown = 120 + duration
+    override val cooldown = TimeUnit.SECONDS.toMillis(120) + duration
     override val slot = 2
     override val name = "Adrenaline Rush"
     override val description = "Fast"
@@ -17,16 +22,16 @@ object AdrenalineRush : BasePower {
     override val modelData = 0
 
 
-    override fun onActivate(user: User) {
-        if (!isReady(user, Power.ADRENALINE_RUSH)) {
-            user.message(
-                Message.POWER_COOLDOWN_REMAINING,
-                Placeholder.unparsed("power", name),
-                Placeholder.unparsed("time_remaining", "${cooldown - (timeRemaining(user, Power.ADRENALINE_RUSH) / 1000)}")
-            )
+    override fun onRightClick(user: User) {
+        if (!user.tryActivate(power)) {
+            user.messageCooldown(power)
             return
-            }
-        setCooldown(user, Power.ADRENALINE_RUSH)
         }
+        user.message(Message.POWER_ACTIVATED_WITH_DURATION, Placeholder.unparsed("power", name), Placeholder.unparsed("duration", (duration / 1000).toString()))
     }
+
+    fun isActive(user: User): Boolean {
+        return cooldown - user.getCooldownRemaining(power) < duration
+    }
+}
 
