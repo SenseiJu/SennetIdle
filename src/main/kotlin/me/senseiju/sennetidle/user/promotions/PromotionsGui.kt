@@ -9,7 +9,12 @@ import me.senseiju.sennetidle.serviceProvider
 import me.senseiju.sennetidle.user.User
 import me.senseiju.sennetidle.utils.*
 import me.senseiju.sennetidle.utils.extensions.component
+import me.senseiju.sentils.extensions.entity.playSound
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.title.Title
+import net.kyori.adventure.util.Ticks
 import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 
 private val idleMobService = serviceProvider.get<IdleMobService>()
@@ -34,26 +39,43 @@ fun Player.openPromotionsGui(user: User) {
 
 private fun createPromoteItem(user: User): GuiItem {
     return ItemBuilder.from(Material.NETHER_STAR)
-        .name(
-            if (user.canPromote()) {
-                "<green><b>Promotion Available"
-            } else {
-                "<red><b>Promotion Unavailable"
-            }.component()
-        )
-        .lore(
-            EMPTY_COMPONENT,
-            "".component()
-        )
+        .name("<light_purple><b>Promotion".component())
+        .lore(createPromoteItemLore(user))
         .asGuiItem {
             if (user.canPromote()) {
-                user.currentWave = 1
-                user.promotions++
-                user.unspentUpgradePoints += 3
+                user.promote()
+
+                val promotionSuccessTitle = Title.title(
+                    "<green><b><obf>||</obf> PROMOTION ${user.promotions} <obf>||</obf>".component(),
+                    "<grey>You have been promoted!".component(),
+                    Title.Times.times(Ticks.duration(10), Ticks.duration(40), Ticks.duration(20))
+                )
+                user.withPlayer {
+                    it.showTitle(promotionSuccessTitle)
+                    it.playSound(Sound.ENTITY_PLAYER_LEVELUP)
+                }
 
                 idleMobService.forceNewIdleMob(user)
             } else {
                 user.message(Message.PROMOTION_UNAVAILABLE)
             }
         }
+}
+private fun createPromoteItemLore(user: User): List<Component> {
+    val lore = mutableListOf<Component>()
+
+    lore.add(EMPTY_COMPONENT)
+    lore.add("<aqua>Promotion Requirements: ".component())
+
+    lore.add("  <yellow>Wave ${user.nextPromotionWave()} ".component()
+        .append(if (user.canPromote()) GREEN_TICK_COMPONENT else RED_CROSS_COMPONENT))
+
+    lore.add(EMPTY_COMPONENT)
+    lore.add("<aqua>Rewards: ".component())
+    lore.add("  <yellow>x3 Upgrade Points".component())
+
+    lore.add(EMPTY_COMPONENT)
+    lore.add("<red>WARNING <grey>Current wave will be reset".component())
+
+    return lore
 }

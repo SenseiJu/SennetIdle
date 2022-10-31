@@ -1,12 +1,12 @@
 package me.senseiju.sennetidle.idlemob
 
+import me.senseiju.sennetidle.Message
 import me.senseiju.sennetidle.plugin
 import me.senseiju.sennetidle.powers.powerData.AdrenalineRush
 import me.senseiju.sennetidle.upgrades.Upgrade
 import me.senseiju.sennetidle.upgrades.upgradeData.PlayerUpgrade
 import me.senseiju.sennetidle.user.User
 import me.senseiju.sennetidle.utils.MultiRunnable
-import me.senseiju.sennetidle.utils.extensions.component
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.NamespacedKey
@@ -40,7 +40,7 @@ abstract class AbstractIdleMob(
 
         entity.setAI(false)
         entity.isSilent = true
-        entity.maximumNoDamageTicks = 5
+        entity.maximumNoDamageTicks = 0
         entity.removeWhenFarAway = false
 
         runnables.addRepeatingRunnable(1, 1) {
@@ -112,9 +112,7 @@ abstract class AbstractIdleMob(
     fun onDeath() {
         if (currentHealth <= 0) {
             if (user.canPromote()) {
-                user.withPlayer {
-                    it.sendMessage("<green>You can promote <white>/promote".component())
-                }
+                user.message(Message.PROMOTION_AVAILABLE)
             } else {
                 user.currentWave++
             }

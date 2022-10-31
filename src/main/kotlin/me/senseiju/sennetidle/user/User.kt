@@ -89,7 +89,18 @@ class User(
      * @return true if requirements met
      */
     fun canPromote(): Boolean {
-        return currentWave > 50 + (promotions * 30)
+        return currentWave >= nextPromotionWave()
+    }
+
+    fun nextPromotionWave(): Int {
+        return 51 + (promotions * 30)
+    }
+
+    fun promote() {
+        currentWave = 1
+        promotions++
+        unspentUpgradePoints += 3
+
     }
 
     /**
