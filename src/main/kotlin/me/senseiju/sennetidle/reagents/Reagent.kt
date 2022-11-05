@@ -1,27 +1,51 @@
 package me.senseiju.sennetidle.reagents
 
 import me.senseiju.sennetidle.reagents.reagentData.*
+import me.senseiju.sennetidle.reagents.reagentData.String
 import java.util.*
 
 enum class Reagent(val data: BaseReagent) {
     WOOD(Wood),
+    STRING(String), // TODO
+    STONE(Stone),
+    GOLD(Gold), // TODO
+    IRON(Iron),
+    DIAMOND(Diamond),
+    NEBULA(Nebula), // TODO
+
     WOODEN_HANDLE(WoodenHandle),
     WOODEN_BLADE(WoodenBlade),
     WOODEN_SWORD(WoodenSword),
 
-    STONE(Stone),
     STONE_BLADE(StoneBlade),
     STONE_SWORD(StoneSword),
-    STONE_AXE_HEAD(StoneAxeHead),
-    STONE_AXE(StoneAxe),
 
-    IRON(Iron),
+    GOLDEN_BLADE(GoldenBlade), // TODO
+    GOLDEN_SWORD(GoldenSword), // TODO
+
     IRON_BLADE(IronBlade),
     IRON_SWORD(IronSword),
 
-    DIAMOND(Diamond),
     DIAMOND_BLADE(DiamondBlade),
-    DIAMOND_SWORD(DiamondSword);
+    DIAMOND_SWORD(DiamondSword),
+
+    NETHERITE_BLADE(NetheriteBlade), // TODO
+    NETHERITE_SWORD(NetheriteSword), // TODO
+
+    SLINGSHOT(Slingshot), // TODO
+    BOW(Bow), // TODO
+    COMPOUND_BOW(CompoundBow), // TODO
+    CROSSBOW(Crossbow), // TODO
+
+    MAGIC_CORE(MagicCore), // TODO
+    WAND(Wand), // TODO
+    STAFF(Staff), // TODO
+
+    TOY_FRAME(ToyFrame), // TODO
+    TOY_SOLDIER(ToySoldier), // TODO
+    ARMORED_TOY_SOLDIER(ArmoredToySoldier), // TODO
+
+    ;
 
     companion object {
         fun emptyMap() = values().associateWithTo(EnumMap(Reagent::class.java)) { 0 }
