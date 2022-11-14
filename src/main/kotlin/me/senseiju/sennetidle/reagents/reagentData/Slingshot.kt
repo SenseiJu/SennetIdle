@@ -5,6 +5,7 @@ import org.bukkit.Material
 
 object Slingshot : CraftableReagent, DamagingReagent {
     override val promotionUnlock = 0
+    override val waveUnlock = 31
     override val name = "Slingshot"
     override val material = Material.BOW
     override val modelData = 0

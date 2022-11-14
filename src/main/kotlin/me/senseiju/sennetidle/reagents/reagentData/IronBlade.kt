@@ -4,7 +4,8 @@ import me.senseiju.sennetidle.reagents.Reagent
 import org.bukkit.Material
 
 object IronBlade : CraftableReagent {
-    override val promotionUnlock = 2
+    override val promotionUnlock = 4
+    override val waveUnlock = 201
     override val name = "Iron Blade"
     override val material = Material.IRON_SWORD
     override val modelData = 200

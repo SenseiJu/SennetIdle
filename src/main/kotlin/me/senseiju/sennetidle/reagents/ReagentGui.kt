@@ -4,7 +4,6 @@ import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.guis.Gui
 import me.senseiju.sennetidle.reagents.reagentData.CraftableReagent
 import me.senseiju.sennetidle.reagents.reagentData.DamagingReagent
-import me.senseiju.sennetidle.reagents.reagentData.DroppableReagent
 import me.senseiju.sennetidle.serviceProvider
 import me.senseiju.sennetidle.user.User
 import me.senseiju.sennetidle.user.UserService
@@ -29,7 +28,7 @@ fun Player.openReagentGui() {
 
         val user = userService.getUser(this.uniqueId)
 
-        Reagent.values().forEach { reagent ->
+        Reagent.ordered.forEach { reagent ->
             gui.addItem(createReagentGuiItem(user, reagent, user.getReagentAmount(reagent)))
         }
 
@@ -65,8 +64,10 @@ private fun createLore(user: User, reagent: Reagent, amount: Int): List<Componen
     }
 
     if (reagent.isDroppable()) {
-        reagent.asDroppable().createLore(user, lore)
+        lore.add("<grey>This reagent can be obtained from mob drops".component())
+        lore.add(EMPTY_COMPONENT)
     }
+    lore.add("<aqua>Wave Unlock: <yellow>${reagent.data.waveUnlock} ${tickComponent(user.currentWave >= reagent.data.waveUnlock)}".component())
     lore.add("<aqua>Amount: <yellow>${amount.asCurrencyFormat()}".component())
 
     if (reagent.isDamaging()) {
@@ -90,13 +91,7 @@ fun CraftableReagent.createLore(user: User, lore: MutableList<Component>): Mutab
     lore.add(CRAFTING_REQUIREMENTS_COMPONENT)
 
     reagentRequirements.forEach { (reqReagent, reqAmount) ->
-        val reqComponent = "  <yellow>x$reqAmount ${reqReagent.name} ".component()
-
-        if (user.hasReagent(reqReagent, reqAmount)) {
-            lore.add(reqComponent.append(GREEN_TICK_COMPONENT))
-        } else {
-            lore.add(reqComponent.append(RED_CROSS_COMPONENT))
-        }
+        lore.add("  <yellow>x$reqAmount ${reqReagent.name} ${tickComponent(user.hasReagent(reqReagent, reqAmount))}".component())
     }
 
     return lore
@@ -107,20 +102,6 @@ fun DamagingReagent.createLore(lore: MutableList<Component>): MutableList<Compon
     lore.add("<aqua>Damage Per Second (DPS): <yellow>${damagePerSecond.asCurrencyFormat()}".component())
     if (bossOnly) {
         lore.add("<white><b>Only affects bosses".component())
-    }
-
-    return lore
-}
-
-fun DroppableReagent.createLore(user: User, lore: MutableList<Component>): MutableList<Component> {
-    lore.add("<grey>This reagent can be obtained from mob drops".component())
-    lore.add(EMPTY_COMPONENT)
-
-    val unlockComponent = "<aqua>Wave Unlock: <yellow>$waveUnlock ".component()
-    if (user.currentWave >= waveUnlock) {
-        lore.add(unlockComponent.append(GREEN_TICK_COMPONENT))
-    } else {
-        lore.add(unlockComponent.append(RED_CROSS_COMPONENT))
     }
 
     return lore

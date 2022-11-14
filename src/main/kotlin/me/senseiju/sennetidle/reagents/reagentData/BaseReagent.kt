@@ -11,6 +11,7 @@ private val random = Random()
 
 interface BaseReagent : ModelItem {
     val promotionUnlock: Int
+    val waveUnlock: Int
 
     override fun itemStack(): ItemStack {
         return super.itemStack().apply {
@@ -22,7 +23,6 @@ interface BaseReagent : ModelItem {
 }
 
 interface DroppableReagent : BaseReagent {
-    val waveUnlock: Int
     val dropChance: Float
     val minAmount: Int
     val maxAmount: Int

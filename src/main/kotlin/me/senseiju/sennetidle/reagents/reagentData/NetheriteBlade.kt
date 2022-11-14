@@ -4,7 +4,8 @@ import me.senseiju.sennetidle.reagents.Reagent
 import org.bukkit.Material
 
 object NetheriteBlade : CraftableReagent, DamagingReagent {
-    override val promotionUnlock = 0
+    override val promotionUnlock = 7
+    override val waveUnlock = 351
     override val name = "Netherite Blade"
     override val material = Material.NETHERITE_SWORD
     override val modelData = 0

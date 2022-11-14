@@ -20,6 +20,10 @@ val EMPTY_COMPONENT = "".component()
 val GREEN_TICK_COMPONENT = "<green><b>[✔]".component()
 val RED_CROSS_COMPONENT = "<red><b>[❌]".component()
 
+fun tickComponent(boolean: Boolean): Component {
+    return if (boolean) GREEN_TICK_COMPONENT else RED_CROSS_COMPONENT
+}
+
 fun BaseGui.openSync(player: HumanEntity) {
     newRunnable { open(player) }.runTask(plugin)
 }

@@ -5,6 +5,7 @@ import org.bukkit.Material
 
 object GoldenBlade : CraftableReagent {
     override val promotionUnlock = 2
+    override val waveUnlock = 101
     override val name = "Golden Blade"
     override val material = Material.GOLDEN_SWORD
     override val modelData = 200

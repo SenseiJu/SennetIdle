@@ -4,7 +4,8 @@ import me.senseiju.sennetidle.reagents.Reagent
 import org.bukkit.Material
 
 object ArmoredToySoldier : CraftableReagent, DamagingReagent {
-    override val promotionUnlock = 0
+    override val promotionUnlock = 6
+    override val waveUnlock = 331
     override val name = "Armored Toy Soldier"
     override val material = Material.ARMOR_STAND
     override val modelData = 0

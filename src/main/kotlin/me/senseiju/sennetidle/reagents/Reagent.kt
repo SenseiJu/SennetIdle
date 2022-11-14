@@ -41,7 +41,7 @@ enum class Reagent(val data: BaseReagent) {
     WAND(Wand), // TODO
     STAFF(Staff), // TODO
 
-    TOY_FRAME(ToyFrame), // TODO
+    TOY_PIECES(ToyPieces), // TODO
     TOY_SOLDIER(ToySoldier), // TODO
     ARMORED_TOY_SOLDIER(ArmoredToySoldier), // TODO
 
@@ -50,6 +50,7 @@ enum class Reagent(val data: BaseReagent) {
     companion object {
         fun emptyMap() = values().associateWithTo(EnumMap(Reagent::class.java)) { 0 }
 
+        val ordered = values().sortedBy { it.data.waveUnlock }
         val droppable = values().filter { it.isDroppable() }
         val damaging = values().filter { it.isDamaging() }
         val craftable = values().filter { it.isCraftable() }

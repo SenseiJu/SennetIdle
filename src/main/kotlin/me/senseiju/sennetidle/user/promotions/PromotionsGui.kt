@@ -67,8 +67,7 @@ private fun createPromoteItemLore(user: User): List<Component> {
     lore.add(EMPTY_COMPONENT)
     lore.add("<aqua>Promotion Requirements: ".component())
 
-    lore.add("  <yellow>Wave ${user.nextPromotionWave()} ".component()
-        .append(if (user.canPromote()) GREEN_TICK_COMPONENT else RED_CROSS_COMPONENT))
+    lore.add("  <yellow>Wave ${user.nextPromotionWave()} ${tickComponent(user.canPromote())}".component())
 
     lore.add(EMPTY_COMPONENT)
     lore.add("<aqua>Rewards: ".component())

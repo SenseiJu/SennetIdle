@@ -4,7 +4,8 @@ import me.senseiju.sennetidle.reagents.Reagent
 import org.bukkit.Material
 
 object Wand : CraftableReagent, DamagingReagent {
-    override val promotionUnlock = 0
+    override val promotionUnlock = 5
+    override val waveUnlock = 281
     override val name = "Wand"
     override val material = Material.STICK
     override val modelData = 0

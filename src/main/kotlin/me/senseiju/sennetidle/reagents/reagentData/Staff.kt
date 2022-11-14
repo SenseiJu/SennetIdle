@@ -4,7 +4,8 @@ import me.senseiju.sennetidle.reagents.Reagent
 import org.bukkit.Material
 
 object Staff : CraftableReagent, DamagingReagent {
-    override val promotionUnlock = 0
+    override val promotionUnlock = 6
+    override val waveUnlock = 301
     override val name = "Staff"
     override val material = Material.STICK
     override val modelData = 0

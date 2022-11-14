@@ -20,6 +20,7 @@ repositories {
     maven("https://repo.codemc.io/repository/maven-public/")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://maven.citizensnpcs.co/repo")
+    maven("https://repo.alessiodp.com/releases/")
 }
 
 dependencies {

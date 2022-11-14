@@ -4,7 +4,8 @@ import me.senseiju.sennetidle.reagents.Reagent
 import org.bukkit.Material
 
 object CompoundBow : CraftableReagent, DamagingReagent {
-    override val promotionUnlock = 0
+    override val promotionUnlock = 4
+    override val waveUnlock = 231
     override val name = "Compound Bow"
     override val material = Material.BOW
     override val modelData = 0

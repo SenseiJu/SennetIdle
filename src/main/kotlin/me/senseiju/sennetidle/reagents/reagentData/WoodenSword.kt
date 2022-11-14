@@ -5,6 +5,7 @@ import org.bukkit.Material
 
 object WoodenSword : CraftableReagent, DamagingReagent {
     override val promotionUnlock = 0
+    override val waveUnlock = 1
     override val name = "Wooden Sword"
     override val material = Material.WOODEN_SWORD
     override val modelData = 0

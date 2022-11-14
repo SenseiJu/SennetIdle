@@ -4,7 +4,8 @@ import me.senseiju.sennetidle.reagents.Reagent
 import org.bukkit.Material
 
 object DiamondSword : CraftableReagent, DamagingReagent {
-    override val promotionUnlock = 0
+    override val promotionUnlock = 5
+    override val waveUnlock = 251
     override val name = "Diamond Sword"
     override val material = Material.DIAMOND_SWORD
     override val modelData = 0
