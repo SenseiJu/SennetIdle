@@ -9,7 +9,7 @@ object Crossbow : CraftableReagent, DamagingReagent {
     override val name = "Crossbow"
     override val material = Material.BOW
     override val modelData = 0
-    override val reagentRequirements = mapOf(Reagent.IRON_BLADE to 1, Reagent.WOODEN_HANDLE to 3, Reagent.STONE_SWORD to 9)
+    override val reagentRequirements = mapOf(Reagent.COMPOUND_BOW to 1, Reagent.NETHERITE to 1, Reagent.STRING to 1)
     override val damagePerSecond = 4335
     override val bossOnly = false
     override val amountPerCraft = 1

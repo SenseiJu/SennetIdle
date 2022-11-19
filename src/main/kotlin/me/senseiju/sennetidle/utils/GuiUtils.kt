@@ -17,10 +17,10 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.ItemStack
 
 val EMPTY_COMPONENT = "".component()
-val GREEN_TICK_COMPONENT = "<green><b>[✔]".component()
-val RED_CROSS_COMPONENT = "<red><b>[❌]".component()
+const val GREEN_TICK_COMPONENT = "<green><b>[✔]"
+const val RED_CROSS_COMPONENT = "<red><b>[❌]"
 
-fun tickComponent(boolean: Boolean): Component {
+fun tickComponent(boolean: Boolean): String {
     return if (boolean) GREEN_TICK_COMPONENT else RED_CROSS_COMPONENT
 }
 

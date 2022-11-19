@@ -9,6 +9,6 @@ object MagicCore : CraftableReagent {
     override val name = "Magic Core"
     override val material = Material.GLOWSTONE_DUST
     override val modelData = 200
-    override val reagentRequirements = mapOf(Reagent.DIAMOND to 8)
+    override val reagentRequirements = mapOf(Reagent.NETHERITE to 1, Reagent.NEBULA to 1)
     override val amountPerCraft = 1
 }

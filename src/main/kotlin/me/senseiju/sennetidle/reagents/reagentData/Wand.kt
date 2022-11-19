@@ -9,7 +9,7 @@ object Wand : CraftableReagent, DamagingReagent {
     override val name = "Wand"
     override val material = Material.STICK
     override val modelData = 0
-    override val reagentRequirements = mapOf(Reagent.IRON_BLADE to 1, Reagent.WOODEN_HANDLE to 3, Reagent.STONE_SWORD to 9)
+    override val reagentRequirements = mapOf(Reagent.WOOD to 1, Reagent.MAGIC_CORE to 1)
     override val damagePerSecond = 4335
     override val bossOnly = false
     override val amountPerCraft = 1

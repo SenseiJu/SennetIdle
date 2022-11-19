@@ -11,6 +11,7 @@ enum class Reagent(val data: BaseReagent) {
     GOLD(Gold), // TODO
     IRON(Iron),
     DIAMOND(Diamond),
+    NETHERITE(Netherite), // TODO
     NEBULA(Nebula), // TODO
 
     WOODEN_HANDLE(WoodenHandle),

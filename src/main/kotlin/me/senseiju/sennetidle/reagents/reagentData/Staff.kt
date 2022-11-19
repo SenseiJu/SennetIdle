@@ -9,7 +9,7 @@ object Staff : CraftableReagent, DamagingReagent {
     override val name = "Staff"
     override val material = Material.STICK
     override val modelData = 0
-    override val reagentRequirements = mapOf(Reagent.IRON_BLADE to 1, Reagent.WOODEN_HANDLE to 3, Reagent.STONE_SWORD to 9)
+    override val reagentRequirements = mapOf(Reagent.WAND to 1, Reagent.IRON to 1, Reagent.MAGIC_CORE to 1)
     override val damagePerSecond = 4335
     override val bossOnly = false
     override val amountPerCraft = 1

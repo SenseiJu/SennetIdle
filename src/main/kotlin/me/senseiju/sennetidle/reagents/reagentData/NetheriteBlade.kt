@@ -9,7 +9,7 @@ object NetheriteBlade : CraftableReagent, DamagingReagent {
     override val name = "Netherite Blade"
     override val material = Material.NETHERITE_SWORD
     override val modelData = 0
-    override val reagentRequirements = mapOf(Reagent.IRON_BLADE to 1, Reagent.WOODEN_HANDLE to 3, Reagent.STONE_SWORD to 9)
+    override val reagentRequirements = mapOf(Reagent.NETHERITE to 4)
     override val damagePerSecond = 4335
     override val bossOnly = false
     override val amountPerCraft = 1
