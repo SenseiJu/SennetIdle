@@ -55,11 +55,12 @@ private fun createCraftGuiItem(user: User, reagent: Reagent, amountToCraft: Int)
             user.craftReagent(reagent, amountToCraft)
         }
     }.setUpdateAction {
-        it.type = if (user.canCraftReagent(reagent, amountToCraft)) {
+        val updatedMaterial = if (user.canCraftReagent(reagent, amountToCraft)) {
             Material.GREEN_STAINED_GLASS_PANE
         } else {
             Material.RED_STAINED_GLASS_PANE
         }
+        it.setItemStack(it.itemStack.withType(updatedMaterial))
     }
 }
 
@@ -69,7 +70,7 @@ private fun createReagentGuiItem(user: User, reagent: Reagent, amount: Int): Upd
         .lore(createLore(user, reagent, amount))
         .build()
     ).setUpdateAction {
-        it.lore(createLore(user, reagent, user.getReagentAmount(reagent)))
+        it.itemStack.lore(createLore(user, reagent, user.getReagentAmount(reagent)))
     }
 
     return item

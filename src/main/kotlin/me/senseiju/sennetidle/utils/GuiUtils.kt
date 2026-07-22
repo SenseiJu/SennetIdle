@@ -68,10 +68,10 @@ class UpdatingGuiItem : GuiItem {
     constructor(itemStack: ItemStack) : super(itemStack)
     constructor(itemStack: ItemStack, action: GuiAction<InventoryClickEvent>) : super(itemStack, action)
 
-    var updateAction: (ItemStack) -> Unit = {}
+    var updateAction: (UpdatingGuiItem) -> Unit = {}
         private set
 
-    fun setUpdateAction(action: (ItemStack) -> Unit): UpdatingGuiItem {
+    fun setUpdateAction(action: (UpdatingGuiItem) -> Unit): UpdatingGuiItem {
         updateAction = action
 
         return this
@@ -84,7 +84,7 @@ fun BaseGui.openUpdating(delay: Long, period: Long, player: HumanEntity, closeGu
     val updatingGuiItems = guiItems.values.filterIsInstance(UpdatingGuiItem::class.java)
     val runnable = newRunnable {
         updatingGuiItems.forEach {
-            it.updateAction(it.itemStack)
+            it.updateAction(it)
         }
 
         update()

@@ -24,7 +24,7 @@ object Explosive : IdleMobUpgrade {
 
     fun handleProc(user: User, location: Location) {
         user.withPlayer {
-            it.spawnParticle(Particle.EXPLOSION_HUGE, location, 1)
+            it.spawnParticle(Particle.EXPLOSION_EMITTER, location, 1)
             it.message(Message.UPGRADE_EXPLOSIVE_PROCED)
         }
     }

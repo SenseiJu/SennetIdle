@@ -11,7 +11,7 @@ import me.senseiju.sentils.service.ServiceProvider
 import me.senseiju.sentils.storage.ConfigFile
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.Style
-import org.bukkit.GameRule
+import org.bukkit.GameRules
 import org.bukkit.plugin.java.JavaPlugin
 
 val plugin = JavaPlugin.getPlugin(SennetIdle::class.java)
@@ -36,11 +36,11 @@ class SennetIdle : JavaPlugin() {
         }
 
         server.worlds.forEach {
-            it.setGameRule(GameRule.MAX_ENTITY_CRAMMING, 0)
-            it.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false)
-            it.setGameRule(GameRule.DO_WEATHER_CYCLE, false)
-            it.setGameRule(GameRule.DO_MOB_SPAWNING, false)
-            it.setGameRule(GameRule.DO_MOB_LOOT, false)
+            it.setGameRule(GameRules.MAX_ENTITY_CRAMMING, 0)
+            it.setGameRule(GameRules.ADVANCE_TIME, false)
+            it.setGameRule(GameRules.ADVANCE_WEATHER, false)
+            it.setGameRule(GameRules.SPAWN_MOBS, false)
+            it.setGameRule(GameRules.MOB_DROPS, false)
         }
     }
 

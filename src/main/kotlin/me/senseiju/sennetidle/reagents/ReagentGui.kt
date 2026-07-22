@@ -49,7 +49,7 @@ private fun createReagentGuiItem(user: User, reagent: Reagent, amount: Int): Upd
             e.player.openCraftReagentGui(user, reagent)
         }
     }.setUpdateAction {
-        it.lore(createLore(user, reagent, user.getReagentAmount(reagent)))
+        it.itemStack.lore(createLore(user, reagent, user.getReagentAmount(reagent)))
     }
 
     return item

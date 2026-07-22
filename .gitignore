@@ -127,3 +127,8 @@ gradle-app.setting
 /.idea/**
 /.gradle/**
 /gradle/**
+# Keep the Gradle wrapper tracked so the build is reproducible from a clean clone.
+!/gradle/
+!/gradle/wrapper/
+!/gradle/wrapper/gradle-wrapper.jar
+!/gradle/wrapper/gradle-wrapper.properties
