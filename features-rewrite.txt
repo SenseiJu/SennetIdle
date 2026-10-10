@@ -1,74 +1,291 @@
-- Every player will get an individual mob only they can see that is killable
-  - Damage can be dealt automatically with DPS (Damage per second)
-  - Damage can be dealt manually by clicking the mob (% of DPS)
-    - Auto clickers will be allowed
-    - CPS (Clicks per second) will be capped to a certain amount
-      - Can be increased by having a rank
-      - Can be increased through perks (prestige)
-    - % of DPS increasable through perks/ranks
-- The entire progression is phase based on the primary mob
-  - Every x mobs you kill, a boss will appear
-    - Bosses MUST be killed within x time to allow you progression into the next phase
-    - If you do not kill a boss, you will reset the phase and continue farming resources until you can beat the phase
-    - Bosses can drop significantly better loot such as blueprints or boxes
-- Resources are the core of the game loop
-  - Collected from killing the mob/bosses, boxes, rank rewards, generators etc...
-  - Can be crafted into other resources which have various attributes, primarily DPS
-  - Config driven, reloadable at any time for additions or changes (Previously was hard coded)
-- Every player can have up to 5 hero slots
-  - Heros are NPCS that can deal additional damage or buffs to the mob
-  - Slots are unlocked through game progression, rank bonuses and crate rewards (very very rare)
-  - Heros can level up but its limited to 1 at a time (Monetization space here for rank bonuses)
-- Every player can have up to x generators unlocked
-  - Generators can be setup to automatically craft resources
-    - Blueprints can be found and when put in a generator, allows players to create that resource over some time
-    - Blueprints have limited uses
-    - Blueprints are config driven like resources, can be updated on the fly
-  - Generators can be permanent or temporary
-    - Permanent are unlocked through progression + ranks
-    - Temporary come through crate rewards, time is stackable and stop when nothing is generating
-- Players can unlock special activatable abilities through game progression
-- Players can prestige to help them progress via upgrades
-  - A ideas implemented in the old code already, bring those over and offer more
-  - We can do upgrades such as:
-    - % chance increase on box drops when boss is killed
-- Boxes (In sennetfishing, they are crates i belive)
-  - Tiered boxes that can be obtained through crates/killing the boss mobs/daily rank rewards
-  - Boxes can be merged together in bulk to create higher tier boxes
-  - Boxes offer 2 types of rewards
-    - Guaranteed rewards when opening the box you will always get
-    - "1 of" rewards which you will have a chance to receive from a pool of rewards
-  - Boxes can contain resources directly, blueprints and at the highest tiers may offer chance for temporary ranks, hero slots, generator time
-- Offline rewards
-  - After x minutes offline, you will be able to collect offline rewards up to a certain amount of time
-  - Time increasable through ranks, claimable tickets (from boxes or crates)
-  - Time recharges as you are online and actively playing the game
-- Global goals
-  - I want to have global goals that players can contribute to unlock features or temporary boosts etc...
-  - Can be stuff like forfeiting resources (limited per person)
-- Leaderboards & competition
-  - Weekly/Monthly/All time
-    - Most mob kills
-    - Highest DPS
-    - Highest Phase
-  - Payouts/rewards for top players like store credit high tier boxes or unique blueprints
-- Player vaults for storage
-  - Unlock more vaults + rows through ranks and vouchers
-  - Enderchest is always unlocked for players as default
+SENNETIDLE REWRITE - FEATURES
+=============================
 
-Economy
-Unsure how we can do this in a way that isn't crazy boostable, give some suggestions but here is some ideas
-- Premium currency only obtainable via crates/boxes/bosses
-- Can be used to purchase resources on a "bazaar" or "orders" style market
-- Auction house to sell things like blueprints, boxes, crate keys etc...
+OVERVIEW
+--------
+An idle clicker game. Every player fights their own mob, wave after wave.
+Damage comes from the resources you own, plus clicking. Kill mobs to collect
+resources, craft them into stronger resources, beat a boss every few waves to
+move on, and prestige when you're strong enough. Heroes, generators, abilities
+and boxes all help you get there faster.
 
-Monetization
-- Multiple tiers of ranks
-  - Offers various increases/buffs to players own damage
-  - Offers limit increases to hero slots and generators
-- Global boosters
-  - Hero XP Booster
-  - Double resources booster (% chance)
-  - Player damage booster
+Almost everything (resources, heroes, blueprints, boxes, prestige levels) is
+defined in config and can be reloaded at any time without a restart.
+
+
+THE MOB
+-------
+Your own personal mob that only you can see.
+
+- Damage is dealt automatically every second from your DPS (damage per second)
+- Your DPS comes from the resources you currently own
+- Clicking the mob deals extra damage, a % of your DPS per click
+  - Default 15% per click (config)
+  - Can be increased through ranks and prestige perks
+- Auto clickers are allowed
+- Clicks per second (CPS) are capped
+  - Default cap 5 CPS (config)
+  - Can be increased through ranks and prestige perks
+  - Clicks over the cap still hit, they just don't deal damage
+- No attack cooldown, every click counts (combo style)
+
+
+STAGES, WAVES & BOSSES
+----------------------
+Progression is based on waves.
+
+- Each mob you kill is 1 wave
+- Waves are grouped into stages, with a boss at the end of each stage
+  - Every stage has the same number of waves, default 15 (config)
+  - Shown as "Stage 4, Wave 12/15"
+- Bosses must be killed in time to move on to the next stage
+  - Default 30 seconds (config)
+- If you fail, you go back to the start of the current stage so you can
+  collect more resources
+- Bosses drop much better loot, like blueprints and boxes
+- Mob health grows every stage
+  - Health = base health x growth ^ stage
+  - Base health and growth are config values, growth defaults to x1.5
+  - Boss health = that stage's mob health x boss multiplier (config, default x8)
+- Numbers show as K / M / B / T and have no upper limit
+
+
+RESOURCES
+---------
+The core of the game.
+
+- Collected from mobs, bosses, boxes, generators, rank rewards and more
+- Crafted into other resources, which have different attributes (mainly DPS)
+- Manual crafting is instant if you have the ingredients
+- Each resource unlocks at a set wave and prestige level
+- Fully config driven, reloadable at any time
+- Resources are built from parts that can be mixed and matched, for example:
+  - Damaging (adds DPS)
+  - Droppable (drops from mobs/bosses, with chances and amounts)
+  - Craftable (has a recipe)
+  - Tradeable (can be sold on the resource market)
+
+
+HEROES
+------
+NPCs that fight alongside you.
+
+- Up to 5 hero slots
+  - Unlocked through progression, ranks and very rare box/crate rewards
+- Heroes come from the highest tier boxes and crates
+  - Can come as random hero eggs you open to see which hero you got
+- Heroes can deal damage, give buffs or passives, auto use abilities, or a mix
+  - Built the same mix-and-match way as resources, all in config
+- Rarities: Common, Uncommon, Rare, Epic, Legendary
+- Levelling
+  - Heroes gain XP for every wave you beat
+  - Only 1 hero earns XP at a time (ranks can increase this)
+  - Only heroes in active slots, and only while you are online
+- Merging
+  - 2 Rares make an Epic, 2 Epics make a Legendary
+  - Commons and Uncommons can't be merged
+  - Merging isn't a perfect upgrade, it has diminishing returns since heroes
+    can also be levelled
+
+
+GENERATORS & BLUEPRINTS
+-----------------------
+Machines that make resources for you.
+
+- Each player can unlock a number of generators (max set in config)
+- Every generator has a physical display at a location set in config
+- Put a blueprint in a generator to produce that resource over time
+  - Output is free, it doesn't use up any ingredients
+  - Blueprints have limited uses, 1 use = 1 craft
+  - Blueprints are found in boxes and boss loot
+  - Blueprints are config driven, reloadable at any time
+- Permanent generators come from progression and ranks
+- Temporary generators come from crate rewards
+  - Their time stacks, and only counts down while they're producing
+- Generators only run while you're online
+  - Rank perk: keep running while offline, up to your offline time limit
+- Generator crafts take time, unlike manual crafting
+
+
+ABILITIES
+---------
+Powers you activate during the fight.
+
+- Unlocked through progression
+- Right-click to use, each has its own cooldown
+- Config driven
+- Entering the fight zone swaps your inventory for a combat inventory with your
+  abilities and weapon
+- Leaving the fight zone gives your normal inventory back
+
+
+PRESTIGE
+--------
+Reset your waves to get permanently stronger.
+
+- Requirements are set per prestige level in config
+  - Reach a certain wave
+  - Commit a set of resources
+  - May also cost currency
+- Resources can be handed in bit by bit, with a progress bar
+- Prestiging resets your wave and takes only the committed resources,
+  everything else is kept
+- Rewards
+  - Prestige points to spend on permanent upgrades
+  - Unlocks new resources
+- Upgrade ideas (bring over the old upgrades and add more)
+  - Higher CPS cap
+  - Higher click damage %
+  - Better box drop chance from bosses
+
+
+BOXES
+-----
+Tiered loot boxes.
+
+- Physical items in your inventory
+- Tradeable (can be sold on the auction house)
+- Tiers are set in config
+- Boxes can be merged in bulk into higher tiers (how many it takes is set in config)
+- Come from bosses, crates and daily rank rewards
+- Each box gives
+  - Guaranteed rewards you always get
+  - "1 of" rewards, a chance at one reward from a pool
+- Rewards can be resources, blueprints, and at the highest tiers temporary
+  ranks, hero slots or generator time
+
+
+OFFLINE REWARDS
+---------------
+Progress while you're away.
+
+- Collect rewards after being offline for at least 10 minutes (config)
+- Rewards are your normal kills and drops, at a reduced rate (config)
+- No boss progress while offline
+- Capped at 2 hours by default (config)
+  - Increased by ranks and claimable tickets from boxes/crates
+- Offline time recharges while you play
+  - 1% of your max time per 2 minutes online by default (config)
+
+
+GLOBAL GOALS
+------------
+Server-wide goals everyone works on together.
+
+- Rotating goals with a deadline, which give everyone a temporary boost
+- Milestone goals that permanently unlock features or content
+- Players contribute things like resources (limited per person)
+- Everyone gets the reward, and contributors get an extra bonus
+
+
+LEADERBOARDS
+------------
+- Weekly, monthly and all time
+  - Most mob kills
+  - Highest DPS
+  - Highest wave
+- Shown on holograms at spawn and in a menu
+- Rewards for top players are given out by staff
+  (store credit, high tier boxes, unique blueprints)
+
+
+PLAYER VAULTS
+-------------
+- Ender chest is always unlocked
+- More vaults, and more rows per vault, unlocked through ranks and vouchers
+- Use a public plugin if one supports unlocking row by row, otherwise build our own
+
+
+ECONOMY
+-------
+- Our own built-in economy, stored in our database
+  - Trades between currency and resources happen in one go, so nothing can be duped
+- Multiple currencies, starting with:
+  - Money: the normal currency, so non-premium players can trade too
+  - Gems: premium currency from crates, boxes and bosses (uses not decided yet)
+- Currencies are defined in code as a list (enum), each with its own settings
+  - ID, display name, symbol, number format, starting balance, decimals
+  - Options like whether it can be traded or sent with /pay
+  - Adding or changing a currency means a code update, which is fine since
+    they rarely change
+- Commands: /balance, /pay, /baltop and admin commands to give/take/set
+- PlaceholderAPI placeholders for balances (scoreboards, tab, holograms)
+- Store purchases (Tebex) and rewards use the admin commands
+- Every balance change is logged
+- No Vault/VaultUnlocked support for now, it can be added later if another
+  plugin needs to use our currencies
+- Resource market (bazaar style, buy and sell orders)
+  - Only for resources marked as tradeable in config
+- Auction house for blueprints, boxes, crate keys and other items
+- Every market sale is taxed, and the tax is removed from the game (config %)
+
+
+MONETIZATION
+------------
+- Ranks (multiple tiers)
+  - Damage buffs
+  - Higher CPS cap and click damage
+  - More hero slots and generators
+  - Offline generators, more hero XP slots, longer offline time
+- Global boosters (everyone online benefits)
+  - Hero XP
+  - Double resources (% chance)
+  - Player damage
 - Crate keys
-  - Can be opened to earn resources/blueprints/boxes/currency/vouchers etc...
+  - Open for resources, blueprints, boxes, currency, vouchers and more
+- Note: Mojang's usage guidelines restrict selling gameplay advantages, check
+  these before launch
+
+
+TECH NOTES
+----------
+- Resources, heroes and blueprints use a mix-and-match "component" system
+  - Each thing in config lists the parts it has (damaging, droppable,
+    tradeable, buff, ability...)
+  - Adding a new kind of part only needs one new class
+  - Values can scale by level or rarity using simple level tables
+    (e.g. level 1: 10 damage, level 10: 50 damage)
+- InPets uses a fixed list of 6 ability types, so this is a step up from it,
+  but we keep its good ideas: one file per definition, hot reload, level tables
+- Every click counts because the mob has no hit cooldown, the CPS cap is
+  handled by the plugin
+- All numbers use decimals, so health and DPS never hit a limit
+
+
+INFRASTRUCTURE
+--------------
+- One server, using a multithreaded server fork if we need more players
+  - Pick the fork before building, it changes how the plugin is written
+- MariaDB database
+- Player data is loaded into memory on join
+  - Progress (waves, kills, hero XP, untradeable resources) saves every 30
+    seconds, on quit and on shutdown
+  - Currency and anything tradeable (tradeable resources, boxes, blueprints)
+    saves instantly
+  - Players stay in memory until their quit save finishes, so a quick rejoin
+    never loads old data
+- Markets and the auction house run as database transactions so nothing can
+  be duped
+  - Currency and items change together in one transaction
+  - Every trade is logged with an ID
+- Things for offline players (like auction sales) go into a deliveries list
+  they collect when they join
+- Every box has a unique ID, opening it is recorded so duped boxes can't open
+- Nightly database backups
+
+
+ARCHITECTURE
+------------
+- One plugin for the whole game (economy, markets, heroes, generators, boxes...)
+  - Everything shares one database and one data model
+- Split into a package per feature inside the plugin
+  - Features talk to each other through small services and events, not each
+    other's internals, so one could be split out later if ever needed
+  - Shared basics (player data, database, config, components) live in a core package
+- Generic server plugins stay separate: LuckPerms, chat, anti-cheat,
+  FancyHolograms, FancyNpcs etc.
+
+
+OPEN QUESTIONS
+--------------
+- What Money and Gems can buy
