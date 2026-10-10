@@ -1,0 +1,74 @@
+- Every player will get an individual mob only they can see that is killable
+  - Damage can be dealt automatically with DPS (Damage per second)
+  - Damage can be dealt manually by clicking the mob (% of DPS)
+    - Auto clickers will be allowed
+    - CPS (Clicks per second) will be capped to a certain amount
+      - Can be increased by having a rank
+      - Can be increased through perks (prestige)
+    - % of DPS increasable through perks/ranks
+- The entire progression is phase based on the primary mob
+  - Every x mobs you kill, a boss will appear
+    - Bosses MUST be killed within x time to allow you progression into the next phase
+    - If you do not kill a boss, you will reset the phase and continue farming resources until you can beat the phase
+    - Bosses can drop significantly better loot such as blueprints or boxes
+- Resources are the core of the game loop
+  - Collected from killing the mob/bosses, boxes, rank rewards, generators etc...
+  - Can be crafted into other resources which have various attributes, primarily DPS
+  - Config driven, reloadable at any time for additions or changes (Previously was hard coded)
+- Every player can have up to 5 hero slots
+  - Heros are NPCS that can deal additional damage or buffs to the mob
+  - Slots are unlocked through game progression, rank bonuses and crate rewards (very very rare)
+  - Heros can level up but its limited to 1 at a time (Monetization space here for rank bonuses)
+- Every player can have up to x generators unlocked
+  - Generators can be setup to automatically craft resources
+    - Blueprints can be found and when put in a generator, allows players to create that resource over some time
+    - Blueprints have limited uses
+    - Blueprints are config driven like resources, can be updated on the fly
+  - Generators can be permanent or temporary
+    - Permanent are unlocked through progression + ranks
+    - Temporary come through crate rewards, time is stackable and stop when nothing is generating
+- Players can unlock special activatable abilities through game progression
+- Players can prestige to help them progress via upgrades
+  - A ideas implemented in the old code already, bring those over and offer more
+  - We can do upgrades such as:
+    - % chance increase on box drops when boss is killed
+- Boxes (In sennetfishing, they are crates i belive)
+  - Tiered boxes that can be obtained through crates/killing the boss mobs/daily rank rewards
+  - Boxes can be merged together in bulk to create higher tier boxes
+  - Boxes offer 2 types of rewards
+    - Guaranteed rewards when opening the box you will always get
+    - "1 of" rewards which you will have a chance to receive from a pool of rewards
+  - Boxes can contain resources directly, blueprints and at the highest tiers may offer chance for temporary ranks, hero slots, generator time
+- Offline rewards
+  - After x minutes offline, you will be able to collect offline rewards up to a certain amount of time
+  - Time increasable through ranks, claimable tickets (from boxes or crates)
+  - Time recharges as you are online and actively playing the game
+- Global goals
+  - I want to have global goals that players can contribute to unlock features or temporary boosts etc...
+  - Can be stuff like forfeiting resources (limited per person)
+- Leaderboards & competition
+  - Weekly/Monthly/All time
+    - Most mob kills
+    - Highest DPS
+    - Highest Phase
+  - Payouts/rewards for top players like store credit high tier boxes or unique blueprints
+- Player vaults for storage
+  - Unlock more vaults + rows through ranks and vouchers
+  - Enderchest is always unlocked for players as default
+
+Economy
+Unsure how we can do this in a way that isn't crazy boostable, give some suggestions but here is some ideas
+- Premium currency only obtainable via crates/boxes/bosses
+- Can be used to purchase resources on a "bazaar" or "orders" style market
+- Auction house to sell things like blueprints, boxes, crate keys etc...
+
+Monetization
+- Multiple tiers of ranks
+  - Offers various increases/buffs to players own damage
+  - Offers limit increases to hero slots and generators
+- Global boosters
+  - Hero XP Booster
+  - Double resources booster (% chance)
+  - Player damage booster
+- Crate keys
+  - Can be opened to earn resources/blueprints/boxes/currency/vouchers etc...
