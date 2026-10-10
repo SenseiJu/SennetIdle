@@ -13,6 +13,6 @@ enum class Power(val data: BasePower) {
 
     companion object {
         val namespacedKey = NamespacedKey(plugin, "power")
-        fun emptyMap() = values().associateWithTo(EnumMap(Power::class.java)) { 0L }
+        fun emptyMap() = entries.associateWithTo(EnumMap(Power::class.java)) { 0L }
     }
 }

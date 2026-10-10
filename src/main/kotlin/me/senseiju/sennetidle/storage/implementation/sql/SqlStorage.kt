@@ -2,6 +2,7 @@ package me.senseiju.sennetidle.storage.implementation.sql
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import me.senseiju.sennetidle.config.StorageConfig
 import me.senseiju.sennetidle.plugin
 import me.senseiju.sennetidle.reagents.Reagent
 import me.senseiju.sennetidle.storage.implementation.StorageImplementation
@@ -59,31 +60,23 @@ private const val UPGRADE_DELETE = "DELETE FROM `upgrades` WHERE `player_id`=?;"
 @Language("mysql")
 private const val UPGRADE_INSERT = "INSERT INTO `upgrades` (`player_id`, `upgrade`, `level`) VALUES (?,?,?);"
 
-class SqlStorage(
-    host: String,
-    username: String,
-    password: String,
-    database: String
-) : StorageImplementation {
-    private val dataSource: HikariDataSource
-
-    init {
-        dataSource = HikariConfig().apply {
-            this.jdbcUrl = "jdbc:mysql://${host}/${database}?autoReconnect=true&allowMultiQueries=true&characterEncoding=utf-8&serverTimezone=UTC&useSSL=false"
-            this.username = username
-            this.password = password
-            this.connectionTimeout = 8000
-
-            addDataSourceProperty("cachePrepStmts", "true")
-            addDataSourceProperty("prepStmtCacheSize", "250")
-            addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
-        }.let {
-            HikariDataSource(it)
-        }
-    }
+class SqlStorage(config: StorageConfig) : StorageImplementation {
+    private val dataSource = HikariDataSource(HikariConfig().apply {
+        jdbcUrl = "jdbc:mariadb://${config.host}:${config.port}/${config.database}"
+        driverClassName = "org.mariadb.jdbc.Driver"
+        username = config.username
+        password = config.password
+        maximumPoolSize = config.maximumPoolSize
+        connectionTimeout = 8000
+        poolName = "SennetIdle"
+    })
 
     init {
         generateSchema()
+    }
+
+    override fun close() {
+        dataSource.close()
     }
 
     private fun generateSchema() {

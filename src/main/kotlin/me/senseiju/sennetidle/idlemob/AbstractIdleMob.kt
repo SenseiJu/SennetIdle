@@ -91,7 +91,6 @@ abstract class AbstractIdleMob(
         Upgrade.playerUpgrades.forEach { it.dataAs<PlayerUpgrade>().onPlayerDamageIdleMob(user, dm) }
 
         if (AdrenalineRush.isActive(user)) {
-            println("AMPLIFYING")
             dm.finalDamage *= AdrenalineRush.DAMAGE_MULTIPLIER
         }
 

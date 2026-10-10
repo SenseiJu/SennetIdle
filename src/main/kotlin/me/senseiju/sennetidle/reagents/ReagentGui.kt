@@ -1,7 +1,5 @@
 package me.senseiju.sennetidle.reagents
 
-import dev.triumphteam.gui.builder.item.ItemBuilder
-import dev.triumphteam.gui.guis.Gui
 import me.senseiju.sennetidle.reagents.reagentData.CraftableReagent
 import me.senseiju.sennetidle.reagents.reagentData.DamagingReagent
 import me.senseiju.sennetidle.serviceProvider
@@ -10,49 +8,35 @@ import me.senseiju.sennetidle.user.UserService
 import me.senseiju.sennetidle.utils.*
 import me.senseiju.sennetidle.utils.extensions.asCurrencyFormat
 import me.senseiju.sennetidle.utils.extensions.component
-import me.senseiju.sentils.extensions.events.player
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
+import xyz.xenondevs.invui.gui.Gui
+import xyz.xenondevs.invui.item.Item
+import xyz.xenondevs.invui.item.ItemBuilder
 
 private val userService = serviceProvider.get<UserService>()
 
 private val REAGENT_TITLE_COMPONENT = "<dark_grey><b>Reagents".component()
 
 fun Player.openReagentGui() {
-    defaultScope {
-        val gui = Gui.gui()
-            .title(REAGENT_TITLE_COMPONENT)
-            .rows(6)
-            .disableAllInteractions()
-            .create()
+    val user = userService.getUser(uniqueId)
 
-        val user = userService.getUser(this.uniqueId)
+    val gui = Gui.empty(9, 6)
+    gui.addItems(*Reagent.ordered.map { createReagentGuiItem(user, it) }.toTypedArray())
 
-        Reagent.ordered.forEach { reagent ->
-            gui.addItem(createReagentGuiItem(user, reagent, user.getReagentAmount(reagent)))
-        }
-
-        gui.openUpdating(20L, 20L, this)
-    }
+    openGui(REAGENT_TITLE_COMPONENT, gui)
 }
 
-private fun createReagentGuiItem(user: User, reagent: Reagent, amount: Int): UpdatingGuiItem {
-    val item = UpdatingGuiItem(ItemBuilder.from(reagent.data.itemStack())
-        .lore(createLore(user, reagent, amount))
-        .build()
-    ) { e ->
-        if (!e.isLeftClick) {
-            return@UpdatingGuiItem
+private fun createReagentGuiItem(user: User, reagent: Reagent): Item {
+    return guiItem(
+        updatePeriod = 20,
+        provider = { ItemBuilder(reagent.data.itemStack()).setLore(createLore(user, reagent, user.getReagentAmount(reagent))) },
+        onClick = { click ->
+            if (click.clickType.isLeftClick && reagent.isCraftable() && user.hasEnoughPromotions(reagent)) {
+                click.player().openCraftReagentGui(user, reagent)
+            }
         }
-
-        if (reagent.isCraftable() && user.hasEnoughPromotions(reagent)) {
-            e.player.openCraftReagentGui(user, reagent)
-        }
-    }.setUpdateAction {
-        it.itemStack.lore(createLore(user, reagent, user.getReagentAmount(reagent)))
-    }
-
-    return item
+    )
 }
 
 private fun createLore(user: User, reagent: Reagent, amount: Int): List<Component> {

@@ -4,7 +4,7 @@ import me.senseiju.sennetidle.plugin
 import me.senseiju.sennetidle.serviceProvider
 import me.senseiju.sennetidle.user.User
 import me.senseiju.sennetidle.user.UserService
-import me.senseiju.sentils.registerEvents
+import me.senseiju.sennetidle.utils.extensions.register
 import org.bukkit.Bukkit
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
@@ -46,10 +46,10 @@ private val userService = serviceProvider.get<UserService>()
 class IdleMobSpawnHandler : Listener {
     val idleMobs = hashMapOf<UUID, AbstractIdleMob>()
 
-    private val spawnLocation = plugin.config.getLocation("idle-mob.spawn-location") ?: throw Exception("'idle-mob.spawn-location' config option not set!")
+    private val spawnLocation = plugin.cfg.idleMob.spawnLocation.toLocation()
 
     init {
-        plugin.registerEvents(this)
+        register()
     }
 
     fun disposeAllMobs() {

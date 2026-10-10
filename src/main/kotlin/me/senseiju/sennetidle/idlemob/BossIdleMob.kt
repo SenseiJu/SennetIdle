@@ -3,7 +3,7 @@ package me.senseiju.sennetidle.idlemob
 import me.senseiju.sennetidle.plugin
 import me.senseiju.sennetidle.user.User
 import me.senseiju.sennetidle.utils.extensions.component
-import me.senseiju.sentils.extensions.entity.playSound
+import me.senseiju.sennetidle.utils.extensions.playSound
 import net.kyori.adventure.title.Title
 import net.kyori.adventure.util.Ticks
 import org.bukkit.Location

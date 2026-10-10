@@ -3,8 +3,8 @@ package me.senseiju.sennetidle.powers
 import me.senseiju.sennetidle.plugin
 import me.senseiju.sennetidle.serviceProvider
 import me.senseiju.sennetidle.user.UserService
-import me.senseiju.sentils.registerEvents
-import me.senseiju.sentils.service.Service
+import me.senseiju.sennetidle.utils.extensions.register
+import me.senseiju.sennetidle.utils.Service
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -22,7 +22,7 @@ private val userService = serviceProvider.get<UserService>()
 class PowerService : Service(), Listener {
 
     init {
-        plugin.registerEvents(this)
+        register()
     }
 
     @EventHandler
@@ -31,7 +31,7 @@ class PowerService : Service(), Listener {
             e.player.inventory.setItem(it, ItemStack(Material.AIR))
         }
 
-        Power.values().map { it.data }.forEach {
+        Power.entries.map { it.data }.forEach {
             e.player.inventory.setItem(it.slot, it.itemStack())
         }
     }
@@ -56,7 +56,7 @@ class PowerService : Service(), Listener {
             return
         }
 
-        Power.values().map { it.data }.forEach {
+        Power.entries.map { it.data }.forEach {
             if (e.player.inventory.heldItemSlot == it.slot) {
                 if (e.player.inventory.itemInMainHand.itemMeta.persistentDataContainer.get(Power.namespacedKey, PersistentDataType.STRING) == it.name) {
                     it.onRightClick(userService.getUser(e.player.uniqueId))

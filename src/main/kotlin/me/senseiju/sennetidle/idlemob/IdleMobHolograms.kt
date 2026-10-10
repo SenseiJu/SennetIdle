@@ -1,27 +1,32 @@
 package me.senseiju.sennetidle.idlemob
 
-import eu.decentsoftware.holograms.api.DHAPI
+import de.oliver.fancyholograms.api.FancyHologramsPlugin
+import de.oliver.fancyholograms.api.data.TextHologramData
+import de.oliver.fancyholograms.api.hologram.Hologram
 import me.senseiju.sennetidle.plugin
-import me.senseiju.sentils.extensions.color
-import me.senseiju.sentils.extensions.parseLocation
-import org.bukkit.Location
 
 class IdleMobHolograms {
-    private val hologramLocation = plugin.config.getStringList("idle-mob.hologram-locations").map { it.parseLocation() }
-    private val hologramLines = listOf(
-        "&6&lWave %idle_user_current_wave%",
-        "",
-        "&b&lHealth: &e%idle_user_mob_health%",
-        "&b&lCPS: &e%idle_user_cps%",
-        "&b&lDPS: &e%idle_user_dps%"
-    ).color()
-    private val holograms = hologramLocation.mapIndexed { index: Int, location: Location ->
-        DHAPI.createHologram("player_stats_$index", location, hologramLines)
-    }
+    private val manager = FancyHologramsPlugin.get().hologramManager
+
+    private val holograms: List<Hologram>
 
     init {
-        holograms.forEach {
-            it.updateInterval = 1
+        val config = plugin.cfg.idleMob
+
+        holograms = config.hologramLocations.mapIndexed { index, location ->
+            val name = "sennetidle_player_stats_$index"
+            manager.getHologram(name).ifPresent(manager::removeHologram)
+
+            val data = TextHologramData(name, location.toLocation())
+                .setText(config.hologramLines)
+                .setTextUpdateInterval(config.hologramUpdateInterval)
+                .setPersistent(false)
+
+            manager.create(data).also(manager::addHologram)
         }
+    }
+
+    fun dispose() {
+        holograms.forEach(manager::removeHologram)
     }
 }

@@ -1,97 +1,93 @@
-import org.gradle.api.attributes.java.TargetJvmVersion
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import xyz.jpenilla.resourcefactory.paper.PaperPluginYaml
 
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization")
-
-    id("com.gradleup.shadow")
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.resourceFactoryPaperConvention)
 }
 
 group = "me.senseiju"
-version = "0.3.1"
+version = System.getenv("GITHUB_REF_NAME")?.removePrefix("v") ?: "local-SNAPSHOT"
 
 repositories {
     mavenCentral()
-
-    maven("https://jitpack.io")
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.panda-lang.org/releases")
-    maven("https://repo.dmulloy2.net/repository/public/")
-    maven("https://repo.codemc.io/repository/maven-public/")
-    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-    maven("https://maven.citizensnpcs.co/repo")
-    maven("https://repo.alessiodp.com/releases/")
+    maven("https://repo.extendedclip.com/releases/")
+    maven("https://repo.aikar.co/content/groups/aikar/")
+    maven("https://repo.xenondevs.xyz/releases")
+    maven("https://repo.fancyinnovations.com/releases")
+    maven("https://jitpack.io")
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
-    implementation(kotlin("reflect"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-    implementation("com.github.SenseiJu:Sentils:-SNAPSHOT")
-    implementation("dev.triumphteam:triumph-gui:3.1.3")
-    implementation("me.mattstudios.utils:matt-framework:1.4.6")
-    implementation("com.zaxxer:HikariCP:5.1.0")
+    compileOnly(libs.paperApi)
+    compileOnly(libs.placeholderApi)
+    compileOnly(libs.fancyHolograms)
+    compileOnly(libs.fancyNpcs)
+    compileOnly(libs.vaultApi) {
+        isTransitive = false
+    }
 
-    compileOnly("io.papermc.paper:paper-api:26.1.2.build.72-stable")
-    compileOnly("net.kyori:adventure-text-minimessage:4.18.0")
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
-    compileOnly("me.clip:placeholderapi:2.12.2")
-    compileOnly("com.github.decentsoftware-eu:decentholograms:2.8.12")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
-    compileOnly("net.citizensnpcs:citizens-main:2.0.42-SNAPSHOT")
-
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.0")
+    implementation(libs.acfPaper)
+    implementation(libs.configurateYaml)
+    implementation(libs.configurateGson) {
+        exclude(group = "com.google.code.gson", module = "gson")
+    }
+    implementation(libs.hikari)
+    implementation(libs.mariadbJdbc)
+    implementation(libs.invui)
 }
 
-// Paper 26.1.2 is built for Java 25, so we compile against it with a JDK 25 toolchain.
-// The Kotlin 2.2.20 compiler only emits up to JVM 24 bytecode, which still runs fine on
-// the Java 25 runtime, so we pin the Kotlin/Java compile targets to 24 to keep them consistent.
+configurations.runtimeClasspath {
+    exclude(group = "org.slf4j", module = "slf4j-api")
+    exclude(group = "com.google.errorprone", module = "error_prone_annotations")
+    exclude(group = "org.jetbrains", module = "annotations")
+    exclude(group = "org.jspecify", module = "jspecify")
+}
+
 kotlin {
     jvmToolchain(25)
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_24)
+        javaParameters.set(true)
     }
 }
 
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
-}
-
-tasks.withType<JavaCompile>().configureEach {
-    options.release.set(24)
-}
-
-// paper-api 26.1.2 declares a minimum runtime of Java 25 (which this plugin does run on, since
-// Paper 26.1.2 requires it). We emit Java 24 bytecode, so tell Gradle's variant resolution that
-// our runtime target is 25 so the dependency resolves.
-configurations.named("compileClasspath") {
-    attributes {
-        attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
+paperPluginYaml {
+    name = rootProject.name
+    authors = listOf("SenseiJu")
+    apiVersion = "26.3"
+    main = "me.senseiju.sennetidle.SennetIdle"
+    version = project.version.toString()
+    dependencies {
+        server("PlaceholderAPI", PaperPluginYaml.Load.BEFORE, required = true)
+        server("Vault", PaperPluginYaml.Load.BEFORE, required = true)
+        server("FancyHolograms", PaperPluginYaml.Load.BEFORE, required = true)
+        server("FancyNpcs", PaperPluginYaml.Load.BEFORE, required = true)
     }
 }
 
 tasks {
-    shadowJar {
-        archiveFileName.set("SennetIdle-${project.version}.jar")
-
-        relocate("dev.triumphteam.gui", "me.senseiju.shaded.gui")
-        relocate("me.mattstudios.mf", "me.senseiju.shaded.cmd")
-
-        minimize()
-    }
-
     build {
-        dependsOn(shadowJar)
+        dependsOn("shadowJar")
     }
 
-    processResources {
-        filesMatching("**/plugin.yml") { expand("version" to project.version) }
-    }
+    shadowJar {
+        archiveBaseName.set(rootProject.name)
+        archiveVersion.set(project.version.toString())
+        archiveClassifier.set("")
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
-    test {
-        useJUnitPlatform()
+        val shadePath = "me.senseiju.sennetidle.shaded"
+
+        relocate("co.aikar", "$shadePath.acf")
+        relocate("org.spongepowered.configurate", "$shadePath.configurate")
+        relocate("org.yaml.snakeyaml", "$shadePath.snakeyaml")
+        relocate("io.leangen.geantyref", "$shadePath.geantyref")
+        relocate("net.kyori.option", "$shadePath.kyori.option")
+        relocate("com.zaxxer.hikari", "$shadePath.hikari")
+        relocate("org.mariadb.jdbc", "$shadePath.mariadb")
+        relocate("xyz.xenondevs", "$shadePath.invui")
+
+        mergeServiceFiles()
     }
 }

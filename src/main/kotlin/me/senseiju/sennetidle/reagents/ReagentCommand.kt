@@ -1,7 +1,8 @@
 package me.senseiju.sennetidle.reagents
 
-import me.mattstudios.mf.annotations.*
-import me.mattstudios.mf.base.CommandBase
+import co.aikar.commands.BaseCommand
+import co.aikar.commands.annotation.*
+import co.aikar.commands.bukkit.contexts.OnlinePlayer
 import me.senseiju.sennetidle.*
 import me.senseiju.sennetidle.user.UserService
 import me.senseiju.sennetidle.utils.message
@@ -11,57 +12,36 @@ import org.bukkit.entity.Player
 
 private val userService = serviceProvider.get<UserService>()
 
-@Command("reagent")
-@Alias("reagents")
-class ReagentCommand : CommandBase() {
+@CommandAlias("reagent|reagents")
+class ReagentCommand : BaseCommand() {
 
     @Default
-    @Permission(PERMISSION_REAGENT_GUI)
+    @CommandPermission(PERMISSION_REAGENT_GUI)
     fun default(sender: Player) {
         sender.openReagentGui()
     }
 
-    @SubCommand("craft")
-    @Permission(PERMISSION_REAGENT_GUI)
-    fun craft(sender: Player, @Completion("#enum") reagent: Reagent?) {
-        if (reagent == null) {
-            sender.message(Message.INVALID_REAGENT)
-            return
-        }
-
+    @Subcommand("craft")
+    @CommandPermission(PERMISSION_REAGENT_GUI)
+    @CommandCompletion("@reagents")
+    @Syntax("<reagent>")
+    fun craft(sender: Player, reagent: Reagent) {
         sender.openCraftReagentGui(userService.getUser(sender.uniqueId), reagent)
     }
 
-    @SubCommand("give")
-    @Permission(PERMISSION_REAGENT_MODIFY)
-    fun give(
-        sender: CommandSender,
-        @Completion("#players") target: Player?,
-        @Completion("#enum") reagent: Reagent?,
-        amount: Int?
-    ) {
-        if (target == null) {
-            sender.message(Message.INVALID_PLAYER)
-            return
-        }
+    @Subcommand("give")
+    @CommandPermission(PERMISSION_REAGENT_MODIFY)
+    @CommandCompletion("@players @reagents @nothing")
+    @Syntax("<player> <reagent> <amount>")
+    fun give(sender: CommandSender, target: OnlinePlayer, reagent: Reagent, amount: Int) {
+        val player = target.player
 
-        if (reagent == null) {
-            sender.message(Message.INVALID_REAGENT)
-            return
-        }
-
-        if (amount == null) {
-            sender.message(Message.INVALID_AMOUNT)
-            return
-        }
-
-        userService.getUser(target.uniqueId).addReagent(reagent, amount)
+        userService.getUser(player.uniqueId).addReagent(reagent, amount)
         sender.message(
             Message.REAGENT_ADDED,
             Placeholder.unparsed("amount", "$amount"),
             Placeholder.unparsed("reagent", reagent.data.name),
-            Placeholder.unparsed("player_name", target.name)
+            Placeholder.unparsed("player_name", player.name)
         )
     }
-
 }

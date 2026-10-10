@@ -4,8 +4,8 @@ import me.senseiju.sennetidle.plugin
 import me.senseiju.sennetidle.serviceProvider
 import me.senseiju.sennetidle.storage.StorageService
 import me.senseiju.sennetidle.utils.extensions.component
-import me.senseiju.sentils.registerEvents
-import me.senseiju.sentils.runnables.newRunnable
+import me.senseiju.sennetidle.utils.extensions.register
+import me.senseiju.sennetidle.utils.extensions.runTaskTimerAsync
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -14,9 +14,10 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerKickEvent
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.system.measureTimeMillis
 
-private val SAVE_INTERVAL_IN_TICKS = plugin.config.getInt("save-interval", 120) * 20L
+private val SAVE_INTERVAL_IN_TICKS = plugin.cfg.saveInterval * 20L
 
 private val DATA_FAILED_TO_LOAD_COMPONENT = "<red><b>Failed to load user data, try reconnecting (If this issue persists, contact an Admin)".component()
 
@@ -24,14 +25,12 @@ private val storageService = serviceProvider.get<StorageService>()
 private val logger = plugin.slF4JLogger
 
 class UserCache : Listener {
-    val users = hashMapOf<UUID, User>()
-
-    private val runnable = newRunnable { saveUsers() }
+    val users = ConcurrentHashMap<UUID, User>()
 
     init {
-        plugin.registerEvents(this)
+        register()
 
-        runnable.runTaskTimerAsynchronously(plugin, SAVE_INTERVAL_IN_TICKS, SAVE_INTERVAL_IN_TICKS)
+        runTaskTimerAsync(SAVE_INTERVAL_IN_TICKS, SAVE_INTERVAL_IN_TICKS) { saveUsers() }
     }
 
     @Synchronized

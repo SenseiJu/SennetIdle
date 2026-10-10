@@ -1,19 +1,22 @@
 package me.senseiju.sennetidle.utils.extensions
 
-import me.senseiju.sentils.extensions.primitives.asCurrencyFormat
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.minimessage.MiniMessage
 import java.text.NumberFormat
 import java.util.*
 
 private val miniMessage = MiniMessage.miniMessage()
 
-fun Int.asCurrencyFormat(prefix: String? = null, suffix: String? = null): String {
-    return toLong().asCurrencyFormat(prefix, suffix)
+fun Number.asCurrencyFormat(): String {
+    return "%,d".format(Locale.US, toLong())
 }
 
+/**
+ * Parses MiniMessage, with italics disabled so item names and lore don't render italic
+ */
 fun String.component(): Component {
-    return miniMessage.deserialize(this)
+    return miniMessage.deserialize(this).decoration(TextDecoration.ITALIC, false)
 }
 
 private val compactNumberFormatter = ThreadLocal.withInitial {

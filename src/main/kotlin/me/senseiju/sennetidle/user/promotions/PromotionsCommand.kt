@@ -1,18 +1,16 @@
 package me.senseiju.sennetidle.user.promotions
 
-import me.mattstudios.mf.annotations.Alias
-import me.mattstudios.mf.annotations.Command
-import me.mattstudios.mf.annotations.Default
-import me.mattstudios.mf.base.CommandBase
+import co.aikar.commands.BaseCommand
+import co.aikar.commands.annotation.CommandAlias
+import co.aikar.commands.annotation.Default
 import me.senseiju.sennetidle.serviceProvider
 import me.senseiju.sennetidle.user.UserService
 import org.bukkit.entity.Player
 
 private val userService = serviceProvider.get<UserService>()
 
-@Command("promotions")
-@Alias("promotion", "promote")
-class PromotionsCommand : CommandBase() {
+@CommandAlias("promotions|promotion|promote")
+class PromotionsCommand : BaseCommand() {
 
     @Default
     fun default(sender: Player) {

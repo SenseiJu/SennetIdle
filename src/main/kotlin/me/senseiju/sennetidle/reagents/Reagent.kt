@@ -49,12 +49,12 @@ enum class Reagent(val data: BaseReagent) {
     ;
 
     companion object {
-        fun emptyMap() = values().associateWithTo(EnumMap(Reagent::class.java)) { 0 }
+        fun emptyMap() = entries.associateWithTo(EnumMap(Reagent::class.java)) { 0 }
 
-        val ordered = values().sortedBy { it.data.waveUnlock }
-        val droppable = values().filter { it.isDroppable() }
-        val damaging = values().filter { it.isDamaging() }
-        val craftable = values().filter { it.isCraftable() }
+        val ordered = entries.sortedBy { it.data.waveUnlock }
+        val droppable = entries.filter { it.isDroppable() }
+        val damaging = entries.filter { it.isDamaging() }
+        val craftable = entries.filter { it.isCraftable() }
     }
 
     fun isDroppable(): Boolean {

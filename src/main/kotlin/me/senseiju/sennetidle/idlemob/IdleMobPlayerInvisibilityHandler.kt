@@ -1,8 +1,8 @@
 package me.senseiju.sennetidle.idlemob
 
 import me.senseiju.sennetidle.plugin
-import me.senseiju.sentils.registerEvents
-import me.senseiju.sentils.runnables.newRunnable
+import me.senseiju.sennetidle.utils.extensions.register
+import me.senseiju.sennetidle.utils.extensions.runTaskTimer
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -11,17 +11,15 @@ import org.bukkit.event.player.PlayerJoinEvent
 import java.util.*
 
 class IdleMobPlayerInvisibilityHandler : Listener {
-    private val spawnLocation = plugin.config.getLocation("idle-mob.spawn-location") ?: throw Exception("'idle-mob.spawn-location' config option not set!")
-    private val playerInvisibilityRadius = plugin.config.getDouble("idle-mob.player-invisibility-radius", 5.0)
+    private val spawnLocation = plugin.cfg.idleMob.spawnLocation.toLocation()
+    private val playerInvisibilityRadius = plugin.cfg.idleMob.playerInvisibilityRadius
 
     private val playersInRange = hashSetOf<UUID>()
 
-    private val runnable = newRunnable { onTick() }
-
     init {
-        plugin.registerEvents(this)
+        register()
 
-        runnable.runTaskTimer(plugin, 0L, 4L)
+        runTaskTimer(0L, 4L) { onTick() }
     }
 
     private fun getNearbyPlayers(): Collection<Player> = spawnLocation.getNearbyPlayers(playerInvisibilityRadius)

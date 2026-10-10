@@ -8,4 +8,6 @@ interface StorageImplementation {
     fun loadUser(playerId: UUID): User
 
     fun saveUser(user: User)
+
+    fun close()
 }
