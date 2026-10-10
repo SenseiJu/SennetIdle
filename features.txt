@@ -1,0 +1,135 @@
+SENNETIDLE - FEATURES
+=====================
+
+OVERVIEW
+--------
+SennetIdle is an idle clicker game server. Every player fights their own mob in
+the middle of spawn. The mob takes damage on its own over time, and players can
+click it to deal extra damage. Killing mobs moves you up waves, gives you money
+and drops resources. You use those resources to craft weapons that make you
+stronger. Once you reach a high enough wave you can promote (prestige), which
+resets your wave but unlocks new content and gives you upgrade points.
+
+
+IDLE MOBS
+---------
+Your own personal mob that you fight forever.
+
+- Every player gets their own mob at the spawn point
+- Other players can't see your mob, and you can't see theirs
+- Players standing near the mob are hidden from each other so they don't block clicks
+- The mob loses health every second based on your DPS (damage per second)
+- Clicking the mob deals extra damage (20% of your DPS per hit)
+- Mob health goes up by 15% every wave
+- Normal mobs are random: zombies, skeletons, blazes, spiders, creepers, endermen and more
+- You get $15 for every hit and $100 for every kill
+- A health bar at the top of the screen shows the mob's health
+
+
+WAVES
+-----
+How far you have progressed.
+
+- Every mob you kill moves you up one wave
+- Higher waves mean tougher mobs and bigger resource drops
+- Some resources only start dropping once you reach a certain wave
+- Holograms around the mob show your wave, mob health, clicks per second and DPS
+
+
+BOSS WAVES
+----------
+A tougher fight every 10 waves.
+
+- Every 10th wave is a boss (Iron Golem or Warden)
+- The sky turns to night and a "BOSS WAVE" title appears
+- You only have 10 seconds to kill it, shown by a timer bar
+- Some weapons only deal damage to bosses
+- If you fail, you drop back 9 waves
+
+
+RESOURCES
+---------
+Items you collect and craft to get stronger.
+
+- Raw resources drop from mobs: Wood, String, Stone, Gold, Iron, Diamond, Netherite, Nebula
+- Drops get bigger the further you are into waves
+- Raw resources are crafted into parts (handles, blades) and then into weapons
+- Weapons include swords, bows, wands, staffs and toy soldiers
+- Every weapon you own adds DPS, so owning more of them makes you stronger
+- Some resources are locked until you reach a certain number of promotions
+- /resources opens the menu showing everything you own and what's locked
+- Clicking a craftable item opens the crafting menu
+- You can craft 1, 4, 16, 64 or 256 at a time
+- Note: about half of the resources are placeholders and still need finishing
+
+
+UPGRADES
+--------
+Permanent boosts you buy with upgrade points.
+
+- Upgrade points come from promoting (3 per promotion)
+- Each upgrade costs 1 point per level
+- Sharpness: more click damage (+5% per level, max 25)
+- Critical: chance to deal double click damage (+1.5% per level, max 10)
+- Harvester: chance to drop extra resources on hit (not working yet, max 10)
+- Explosive: chance to instantly kill a normal mob (+1% per level, max 25)
+- /upgrades opens the menu, /upgrades balance shows your points
+
+
+POWERS
+------
+Abilities on your hotbar that you right-click to use.
+
+- Fireball: instantly deals 10% of the mob's max health (45 second cooldown)
+- Adrenaline Rush: 15% more click damage for 5 seconds (2 minute cooldown)
+- Powers are given to you automatically when you join
+- Your inventory is locked so you can't move or drop them
+
+
+PROMOTIONS
+----------
+The prestige system.
+
+- First promotion needs wave 51, then 30 more waves for each one after that
+- Promoting resets your wave back to 1
+- Each promotion gives you 3 upgrade points
+- Promotions unlock new resources
+- You get a message when you're ready to promote
+- /promote opens the promotion menu
+
+
+NPCS
+----
+Clickable NPCs around spawn.
+
+- Uses FancyNpcs
+- NPCs can open the resources menu or the upgrades menu
+- Which NPCs do what is set by name in config.yml
+
+
+PLACEHOLDERS
+------------
+Stats you can show on scoreboards, tab lists and holograms (PlaceholderAPI).
+
+- %idle_user_current_wave% - your current wave
+- %idle_user_promotions% - how many times you have promoted
+- %idle_user_dps% - your damage per second
+- %idle_user_mob_health% - your mob's health, like 1.2K/5K
+- %idle_user_cps% - your clicks per second
+
+
+SAVING
+------
+Player progress is kept in a database.
+
+- Uses MySQL / MariaDB
+- Saves your wave, promotions, upgrade points, resources and upgrades
+- Auto saves every 2 minutes (changeable in config.yml) and when the server stops
+
+
+ADMIN COMMANDS
+--------------
+- /resources give <player> <resource> <amount> - give a player resources
+- /upgrades addUpgradePoints <player> <amount> - give a player upgrade points
+- /upgrades set <player> <upgrade> <level> - set a player's upgrade level
+- Permissions: idle.resource.gui, idle.resource.modify, idle.upgrade.gui, idle.upgrade.modify
