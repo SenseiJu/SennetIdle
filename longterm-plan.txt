@@ -1,0 +1,87 @@
+LONG TERM PLAN - BEDROCK LABS PLATFORM
+======================================
+
+Once IdleMob has released, split the reusable parts of IdleMobCore out into a
+shared platform so future games can reuse them. Modelled on InCore.
+
+Not doing this now. The game ships first as a single plugin.
+
+
+GOAL
+----
+- One core plugin (BLCore) that every game and feature plugin runs on
+- Reusable features (boxes etc.) built once, used across games
+- Games and features talk to each other through public APIs and commands only
+
+
+REPO LAYOUT
+-----------
+Rename the repo to "idlemob" and make it a multi-module Gradle build.
+
+idlemob/
+  build-logic/          convention plugins: bl.base, bl.paper.api, bl.paper.plugin, bl.paper
+  framework/            gg.bedrocklabs.framework (the InCore paper:api equivalent)
+  core/                 plugin "BLCore", gg.bedrocklabs.core
+  boxes/
+    api/                BoxesAPI, BoxesProvider, events
+    core/               plugin "Boxes", gg.bedrocklabs.boxes
+  idlemobcore/
+    api/                IdleMobCoreAPI, IdleMobCoreProvider, events
+    core/               plugin "IdleMobCore", gg.idlemob.idlemobcore (the game)
+
+
+BLCORE (RUNTIME)
+----------------
+- The only jar that bundles libraries: Kotlin stdlib, coroutines, Configurate,
+  ACF, InvUI, Exposed, Hikari, MariaDB driver
+- Other plugins depend on it (paper-plugin.yml, join-classpath) and use its
+  classpath, their own jars only contain their own code
+- No relocation, plugins compile against the normal package names
+- Starts shared things like InvUI
+
+
+FRAMEWORK
+---------
+Moves out of IdleMobCore's framework package.
+
+- BLPlugin<C : BaseConfig, M : BaseMessages>, like InCorePlugin
+  - Loads config.yml and messages.yml on load
+  - Wraps load/enable/disable, logs and shuts the server down on failure
+  - cfg and messages getters, getConfig() blocked
+  - Creates the ACF command manager
+  - Built-in "/<plugin> reload" and "/<plugin> debug" (permission <plugin>.manage)
+  - Hooks: onPluginLoad, onPluginEnable, onPluginDisable, onRegisterCommands, onPostReload
+- BaseConfig (shared fields like debug) and BaseMessages (prefix + render)
+- ConfigLoader + serializers + config types (ItemDisplay, ConfigLocation)
+- EventLogger as an instance per plugin instead of a global object
+- Database, migrations (loaded from the owning plugin's classloader), content
+  registries, coroutine scope, menu helpers, text helpers, number formatting
+- Anything global today (EventLogger, message prefix) has to become per-plugin,
+  since every plugin shares the same framework classes
+
+
+BUILD LOGIC
+-----------
+- bl.base: Kotlin JVM, Java 25 toolchain, repositories, version, shadow
+- bl.paper.api: bl.base + compileOnly Paper API + framework
+- bl.paper.plugin: bl.base + resource-factory paper convention + shared paper-plugin.yml values
+- bl.paper: bl.paper.api + bl.paper.plugin + depends on BLCore
+- kotlin.stdlib.default.dependency=false, stdlib only shipped by BLCore
+- Give nested modules unique groups (boxes:api and idlemobcore:api share a name)
+
+
+FEATURE PLUGINS
+---------------
+- Each feature has an api module (interface, provider, events) and a core module
+- Other plugins compileOnly the api and get it at runtime from the feature plugin
+- Features never depend on a game, games depend on features
+- First candidate: boxes, once they exist inside IdleMobCore
+
+
+MIGRATING IDLEMOBCORE
+---------------------
+- Extend BLPlugin, Config extends BaseConfig, Messages extends BaseMessages
+- Replace EventLogger.x with plugin.log.x
+- /idleadmin reload and debug become the built-in /idlemobcore reload and debug
+- Move the boxes feature out into the boxes plugin
+- Server: add BLCore and Boxes jars, messages.yml may need regenerating

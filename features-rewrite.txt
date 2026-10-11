@@ -1,5 +1,5 @@
-SENNETIDLE REWRITE - FEATURES
-=============================
+IDLEMOB REWRITE - FEATURES
+==========================
 
 OVERVIEW
 --------
@@ -24,7 +24,7 @@ Your own personal mob that only you can see.
   - Can be increased through ranks and prestige perks
 - Auto clickers are allowed
 - Clicks per second (CPS) are capped
-  - Default cap 5 CPS (config)
+  - Default cap 10 CPS (config)
   - Can be increased through ranks and prestige perks
   - Clicks over the cap still hit, they just don't deal damage
 - No attack cooldown, every click counts (combo style)
@@ -254,24 +254,43 @@ TECH NOTES
 
 INFRASTRUCTURE
 --------------
-- One server, using a multithreaded server fork if we need more players
-  - Pick the fork before building, it changes how the plugin is written
+- Single server only, no multi-server setup
+  - A multithreaded server fork can be used if we need more players, pick it
+    before building as it changes how the plugin is written
 - MariaDB database
-- Player data is loaded into memory on join
-  - Progress (waves, kills, hero XP, untradeable resources) saves every 30
-    seconds, on quit and on shutdown
-  - Currency and anything tradeable (tradeable resources, boxes, blueprints)
-    saves instantly
-  - Players stay in memory until their quit save finishes, so a quick rejoin
+- User data is loaded into memory on join
+  - Progress (stage, wave, kills, hero XP, resources from farming) saves every
+    30 seconds, on quit and on shutdown. A crash can only lose farming, never
+    dupe anything
+  - Balances (Money, Gems) are written to the database straight away on every
+    change, then updated in memory
+  - Anything that moves value (listing, buying, spending resources on
+    prestige, opening a box) is one database transaction that saves everything
+    it touches straight away
+  - Users stay in memory until their quit save finishes, so a quick rejoin
     never loads old data
-- Markets and the auction house run as database transactions so nothing can
-  be duped
-  - Currency and items change together in one transaction
-  - Every trade is logged with an ID
-- Things for offline players (like auction sales) go into a deliveries list
-  they collect when they join
+- Only the user's own session ever changes their data
+  - Anything from someone else (market sales, rewards, refunds) becomes a claim
+- Every trade is logged with an ID
 - Every box has a unique ID, opening it is recorded so duped boxes can't open
 - Nightly database backups
+
+
+CLAIMS
+------
+Things owed to a player, collected by their own session.
+
+- Used for market and auction sales, expired listings, leaderboard and global
+  goal rewards, refunds and store purchases
+- Market listings take the items from the seller when listed (held by the
+  listing until sold or expired)
+- Buying takes the payment, marks the listing sold and creates a claim for the
+  seller, all in one transaction
+- Claims are collected on join, with a report of what happened while offline
+  (e.g. "3 items sold for 1.2M Money")
+- If the player is online, the claim is collected straight away
+- Collecting a claim marks it collected and credits the player in one
+  transaction, so it can never be collected twice
 
 
 ARCHITECTURE
